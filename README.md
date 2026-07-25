@@ -1,4 +1,5 @@
 # iRAM+
+<img height="128" width="128" src="https://raw.githubusercontent.com/NovaDev404/iRAM-Plus/refs/heads/main/iRAM-Plus/Assets.xcassets/AppIcon.appiconset/icon.png">
 A fork of GetMoreRam that allows you to enable "Increased Memory Limit" to your sideloaded apps without using Xcode
 
 # How to use
