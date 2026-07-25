@@ -10,7 +10,7 @@ on:
       tag_name:
         description: Release tag name (e.g. v1.0.0)
         type: string
-        required: true
+        required: false
         
 jobs:
   build:
