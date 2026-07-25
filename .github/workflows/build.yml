@@ -1,15 +1,17 @@
 name: Xcode - Build
 
 on: 
-  push:
-  pull_request:
   workflow_dispatch:
-    inputs: 
+    inputs:
       release:
         description: Create a release
         type: boolean
         required: false
-
+      tag_name:
+        description: Release tag name (e.g. v1.0.0)
+        type: string
+        required: true
+        
 jobs:
   build:
     name: Build using xcodebuild command
@@ -140,6 +142,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tag_name: ${{ inputs.tag_name }}
+          name: Release ${{ inputs.tag_name }}
           body: |
             This is a release [created automatically with GitHub Actions workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}).
           files: |
