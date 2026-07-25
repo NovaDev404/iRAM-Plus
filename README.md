@@ -9,14 +9,15 @@ A fork of GetMoreRam that allows you to enable "Increased Memory Limit" to your 
 
 
 ## How to use
-1. Sideload this app
-2. Go to settings, sign in your account that you used to sign the app you want to enable "Increased Memory Limit"
-3. Go to "App IDs" page
-4. Tap Refresh
-5. Tap the app you want to enable "Increased Memory Limit"
-6. Tap "Add Increased Memory Limit"
-7. Reinstall the app from SideStore/AltStore
-8. Check if you have "Increased Memory Limit"
+1. [Download](https://github.com/NovaDev404/iRAM-Plus/releases/latest/download/iRAM-Plus.ipa) the latest IPA
+2. Sideload this app
+3. Go to settings, sign in your account that you used to sign the app you want to enable "Increased Memory Limit"
+4. Go to "App IDs" page
+5. Tap Refresh
+6. Tap the app you want to enable "Increased Memory Limit"
+7. Tap "Add Increased Memory Limit"
+8. Reinstall the app from SideStore/AltStore
+9. Check if you have "Increased Memory Limit"
 
 ## Credits
 - *NovaDev404* - iRAM+ creator  
