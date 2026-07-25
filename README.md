@@ -12,6 +12,6 @@ A fork of GetMoreRam that allows you to enable "Increased Memory Limit" to your 
 8. Check if you have "Increased Memory Limit"
 
 # Credits
-NovaDev404 - iRAM+ creator
-Stossy11 - For GetMoreRam and StosSign.
-SideStore - Anisette Data fetching codes are taken from SideStore
+- NovaDev404 - iRAM+ creator  
+- Stossy11 - For GetMoreRam and StosSign.  
+- SideStore - Anisette Data fetching codes are taken from SideStore  
