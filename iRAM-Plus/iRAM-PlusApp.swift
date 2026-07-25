@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct GetMoreRamApp: App {
+struct iRAMPlusApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

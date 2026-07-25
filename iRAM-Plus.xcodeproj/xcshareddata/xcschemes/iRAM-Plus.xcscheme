@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "173496EF2D847E82007994DB"
-               BuildableName = "GetMoreRam.app"
-               BlueprintName = "GetMoreRam"
-               ReferencedContainer = "container:GetMoreRam.xcodeproj">
+               BuildableName = "iRAM-Plus.app"
+               BlueprintName = "iRAM-Plus"
+               ReferencedContainer = "container:iRAM-Plus.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "173496EF2D847E82007994DB"
-            BuildableName = "GetMoreRam.app"
-            BlueprintName = "GetMoreRam"
-            ReferencedContainer = "container:GetMoreRam.xcodeproj">
+            BuildableName = "iRAM-Plus.app"
+            BlueprintName = "iRAM-Plus"
+            ReferencedContainer = "container:iRAM-Plus.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "173496EF2D847E82007994DB"
-            BuildableName = "GetMoreRam.app"
-            BlueprintName = "GetMoreRam"
-            ReferencedContainer = "container:GetMoreRam.xcodeproj">
+            BuildableName = "iRAM-Plus.app"
+            BlueprintName = "iRAM-Plus"
+            ReferencedContainer = "container:iRAM-Plus.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

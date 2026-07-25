@@ -15,7 +15,7 @@ jobs:
     name: Build using xcodebuild command
     runs-on: macos-latest
     env:
-      scheme: GetMoreRam
+      scheme: iRAM-Plus
       archive_path: archive
     outputs:
       scheme: ${{ steps.scheme.outputs.scheme }}

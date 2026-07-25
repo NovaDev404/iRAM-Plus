@@ -1,5 +1,5 @@
-# Get More Ram
-A simple [StosSign](https://github.com/stossy11/StosSign) wrapper app that allows you to enable "Increased Memory Limit" for your sideloaded apps without using Xcode.
+# iRAM+
+A fork of GetMoreRam that allows you to enable "Increased Memory Limit" to your sideloaded apps without using Xcode
 
 # How to use
 1. Sideload this app
@@ -12,5 +12,6 @@ A simple [StosSign](https://github.com/stossy11/StosSign) wrapper app that allow
 8. Check if you have "Increased Memory Limit"
 
 # Credits
-Stossy11 - For StosSign.
-SideStore - Anisette Data fetching codes are stolen from SideStore
+NovaDev404 - iRAM+ creator
+Stossy11 - For GetMoreRam and StosSign.
+SideStore - Anisette Data fetching codes are taken from SideStore

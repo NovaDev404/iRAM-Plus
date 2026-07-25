@@ -12,26 +12,26 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		173496F02D847E82007994DB /* GetMoreRam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GetMoreRam.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		173496F02D847E82007994DB /* iRAM-Plus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iRAM-Plus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		17D96C882D8543BB00BF51F6 /* Exceptions for "GetMoreRam" folder in "GetMoreRam" target */ = {
+		17D96C882D8543BB00BF51F6 /* Exceptions for "iRAM-Plus" folder in "iRAM-Plus" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 173496EF2D847E82007994DB /* GetMoreRam */;
+			target = 173496EF2D847E82007994DB /* iRAM-Plus */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		173496F22D847E82007994DB /* GetMoreRam */ = {
+		173496F22D847E82007994DB /* iRAM-Plus */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				17D96C882D8543BB00BF51F6 /* Exceptions for "GetMoreRam" folder in "GetMoreRam" target */,
+				17D96C882D8543BB00BF51F6 /* Exceptions for "iRAM-Plus" folder in "iRAM-Plus" target */,
 			);
-			path = GetMoreRam;
+			path = iRAM-Plus;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -52,7 +52,7 @@
 		173496E72D847E82007994DB = {
 			isa = PBXGroup;
 			children = (
-				173496F22D847E82007994DB /* GetMoreRam */,
+				173496F22D847E82007994DB /* iRAM-Plus */,
 				173497042D847F5A007994DB /* Frameworks */,
 				173496F12D847E82007994DB /* Products */,
 			);
@@ -61,7 +61,7 @@
 		173496F12D847E82007994DB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				173496F02D847E82007994DB /* GetMoreRam.app */,
+				173496F02D847E82007994DB /* iRAM-Plus.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,9 +76,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		173496EF2D847E82007994DB /* GetMoreRam */ = {
+		173496EF2D847E82007994DB /* iRAM-Plus */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 173496FE2D847E83007994DB /* Build configuration list for PBXNativeTarget "GetMoreRam" */;
+			buildConfigurationList = 173496FE2D847E83007994DB /* Build configuration list for PBXNativeTarget "iRAM-Plus" */;
 			buildPhases = (
 				173496EC2D847E82007994DB /* Sources */,
 				173496ED2D847E82007994DB /* Frameworks */,
@@ -89,15 +89,15 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				173496F22D847E82007994DB /* GetMoreRam */,
+				173496F22D847E82007994DB /* iRAM-Plus */,
 			);
-			name = GetMoreRam;
+			name = iRAM-Plus;
 			packageProductDependencies = (
 				176645A72FFCAF8800969D1F /* StosSign_API_NoCertificate */,
 				176645A92FFCAF8800969D1F /* StosSign_Auth */,
 			);
-			productName = GetMoreRam;
-			productReference = 173496F02D847E82007994DB /* GetMoreRam.app */;
+			productName = iRAM-Plus;
+			productReference = 173496F02D847E82007994DB /* iRAM-Plus.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -115,7 +115,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 173496EB2D847E82007994DB /* Build configuration list for PBXProject "GetMoreRam" */;
+			buildConfigurationList = 173496EB2D847E82007994DB /* Build configuration list for PBXProject "iRAM-Plus" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -132,7 +132,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				173496EF2D847E82007994DB /* GetMoreRam */,
+				173496EF2D847E82007994DB /* iRAM-Plus */,
 			);
 		};
 /* End PBXProject section */
@@ -284,12 +284,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"GetMoreRam/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"iRAM-Plus/Preview Content\"";
 				DEVELOPMENT_TEAM = 3C3YHUUV75;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = GetMoreRam/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Get More Ram";
+				INFOPLIST_FILE = iRAM-Plus/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "iRAM+";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -301,7 +301,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.aigch.getMoreRam;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aigch.iRAM-Plus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -316,12 +316,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"GetMoreRam/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"iRAM-Plus/Preview Content\"";
 				DEVELOPMENT_TEAM = 3C3YHUUV75;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = GetMoreRam/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Get More Ram";
+				INFOPLIST_FILE = iRAM-Plus/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "iRAM+";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -333,7 +333,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.aigch.getMoreRam;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aigch.iRAM-Plus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -344,7 +344,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		173496EB2D847E82007994DB /* Build configuration list for PBXProject "GetMoreRam" */ = {
+		173496EB2D847E82007994DB /* Build configuration list for PBXProject "iRAM-Plus" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				173496FC2D847E83007994DB /* Debug */,
@@ -353,7 +353,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		173496FE2D847E83007994DB /* Build configuration list for PBXNativeTarget "GetMoreRam" */ = {
+		173496FE2D847E83007994DB /* Build configuration list for PBXNativeTarget "iRAM-Plus" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				173496FF2D847E83007994DB /* Debug */,
