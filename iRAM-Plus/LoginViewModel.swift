@@ -30,9 +30,9 @@ class LoginViewModel: ObservableObject {
         guard !isVerificationCodeSubmitting,
               let verificationCodeHandler else { return }
 
+        self.verificationCodeHandler = nil
         isVerificationCodeSubmitting = true
         verificationCodeHandler(verificationCode)
-        self.verificationCodeHandler = nil
     }
 
     func cancelAuthentication() {
@@ -68,6 +68,17 @@ class LoginViewModel: ObservableObject {
         
         AnisetteDataHelper.shared.loggingFunc = logging
 
+        defer {
+            verificationCodeHandler = nil
+            appleID = ""
+            password = ""
+            needVerificationCode = false
+            verificationCode = ""
+            isLoginInProgress = false
+            isVerificationCodeSubmitting = false
+            isAuthenticationCancellationRequested = false
+        }
+
         do {
             progressCallback?(0.1, "Trying to get client info")
             let anisetteData = try await AnisetteDataHelper.shared.getAnisetteData()
@@ -90,7 +101,6 @@ class LoginViewModel: ObservableObject {
             logging(text: "Apple authentication completed successfully")
 
             guard !isAuthenticationCancellationRequested else {
-                cleanup()
                 throw CancellationError()
             }
 
@@ -107,36 +117,15 @@ class LoginViewModel: ObservableObject {
             availableTeams = teams
             progressCallback?(1.0, "Successfully fetched teams")
 
-            cleanup()
             return true
         } catch {
             logging(text: "Authentication error: \(error.localizedDescription)")
-            
-            // If 2FA is needed, don't cleanup - keep the handler for later use
-            if needVerificationCode {
-                logging(text: "Authentication paused for 2FA")
-                isLoginInProgress = false
-                return false
-            }
-            
-            cleanup()
             
             if isAuthenticationCancellationRequested {
                 throw CancellationError()
             }
             throw error
         }
-    }
-    
-    private func cleanup() {
-        verificationCodeHandler = nil
-        appleID = ""
-        password = ""
-        needVerificationCode = false
-        verificationCode = ""
-        isLoginInProgress = false
-        isVerificationCodeSubmitting = false
-        isAuthenticationCancellationRequested = false
     }
 
     private func prepareForVerification(using handler: @escaping (String?) -> Void) {
