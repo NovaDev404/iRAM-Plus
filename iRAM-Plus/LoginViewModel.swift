@@ -21,6 +21,8 @@ class LoginViewModel: ObservableObject {
     @Published var logs = ""
     @Published var availableTeams: [Team] = []
     
+    var progressCallback: ((Double, String) -> Void)?
+    
     private var verificationCodeHandler: ((String?) -> Void)?
     private var isAuthenticationCancellationRequested = false
     
@@ -56,6 +58,8 @@ class LoginViewModel: ObservableObject {
         isLoginInProgress = true
         isAuthenticationCancellationRequested = false
         
+        progressCallback?(0.0, "Starting...")
+        
         func logging(text: String) {
             Task { @MainActor [weak self] in
                 self?.logs.append("\(text)\n")
@@ -76,8 +80,11 @@ class LoginViewModel: ObservableObject {
         }
 
         do {
+            progressCallback?(0.1, "Trying to get client info")
             let anisetteData = try await AnisetteDataHelper.shared.getAnisetteData()
+            progressCallback?(0.3, "Client info received")
 
+            progressCallback?(0.4, "Fetching Anisette V3")
             let (account, session) = try await AppleAPI.shared.authenticate(appleID: appleID, password: password, anisetteData: anisetteData) { [weak self] completionHandler in
                 guard let self else {
                     completionHandler(nil)
@@ -86,12 +93,14 @@ class LoginViewModel: ObservableObject {
 
                 self.prepareForVerification(using: completionHandler)
             }
+            progressCallback?(0.65, "Anisette is valid")
 
             guard !isAuthenticationCancellationRequested else {
                 throw CancellationError()
             }
 
             logging(text: "Successfully signed in")
+            progressCallback?(0.8, "Successfully signed in")
 
             DataManager.shared.model.account = account
             DataManager.shared.model.session = session
@@ -101,6 +110,7 @@ class LoginViewModel: ObservableObject {
             let teams = try await fetchTeams(for: account, session: session)
             logging(text: "Successfully fetched teams")
             availableTeams = teams
+            progressCallback?(1.0, "Successfully fetched teams")
 
             return true
         } catch {
@@ -130,7 +140,16 @@ class LoginViewModel: ObservableObject {
         guard !fetchedTeams.isEmpty else {
             throw "Unable to Fetch Team!"
         }
-        
+
         return fetchedTeams
+    }
+    
+    func login() async throws {
+        try await authenticate()
+    }
+    
+    func verifyTwoFactorCode(_ code: String) async throws {
+        verificationCode = code
+        submitVerificationCode()
     }
 }
