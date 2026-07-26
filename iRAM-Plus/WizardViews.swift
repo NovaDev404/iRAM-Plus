@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UniformTypeIdentifiers
 import StosSign_API_NoCertificate
 import StosSign_Auth
 
@@ -79,7 +78,6 @@ struct LoginSlide: View {
     @ObservedObject var viewModel: WizardViewModel
     @State private var appleID: String = ""
     @State private var password: String = ""
-    @State private var showFilePicker = false
     @State private var isLoggingIn = false
     @State private var verificationCode: String = ""
     
@@ -135,31 +133,6 @@ struct LoginSlide: View {
             .cornerRadius(15)
             .padding(.horizontal)
             
-            // SideStore Import
-            Button(action: {
-                showFilePicker = true
-            }) {
-                HStack {
-                    Image(systemName: "square.and.arrow.down")
-                        .font(.title2)
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("Import SideStore Account")
-                            .font(.headline)
-                        Text("Import your SideStore account JSON file")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.secondary)
-                }
-                .foregroundStyle(.primary)
-                .padding()
-                .background(Color(UIColor.secondarySystemGroupedBackground))
-                .cornerRadius(15)
-            }
-            .padding(.horizontal)
-            
             Text("All authentication is done on-device. Your credentials are never sent to third-party services.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -167,20 +140,6 @@ struct LoginSlide: View {
                 .padding(.horizontal)
             
             Spacer()
-        }
-        .fileImporter(
-            isPresented: $showFilePicker,
-            allowedContentTypes: [.json],
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                guard let url = urls.first else { return }
-                handleSideStoreImport(url: url)
-            case .failure(let error):
-                viewModel.errorMessage = "Failed to import file: \(error.localizedDescription)"
-                viewModel.showError = true
-            }
         }
         .alert("Error", isPresented: $viewModel.showError) {
             Button("Try Again", role: .cancel) { }

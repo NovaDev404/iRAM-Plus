@@ -169,6 +169,12 @@ class LoginViewModel: ObservableObject {
             availableTeams = teams
             progressCallback?(1.0, "Successfully fetched teams")
             logToFile("Fetched \(teams.count) teams")
+            
+            // Auto-select the first team for wizard flow
+            if let firstTeam = teams.first {
+                DataManager.shared.model.team = firstTeam
+                logToFile("Auto-selected team: \(firstTeam.name)")
+            }
 
             return true
         } catch {
