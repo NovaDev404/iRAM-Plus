@@ -53,19 +53,19 @@ class LoginViewModel: ObservableObject {
         if isLoginInProgress {
             return false
         }
-        
+
         logs = ""
         isLoginInProgress = true
         isAuthenticationCancellationRequested = false
-        
+
         progressCallback?(0.0, "Starting...")
-        
+
         func logging(text: String) {
             Task { @MainActor [weak self] in
                 self?.logs.append("\(text)\n")
             }
         }
-        
+
         AnisetteDataHelper.shared.loggingFunc = logging
 
         defer {
@@ -85,20 +85,16 @@ class LoginViewModel: ObservableObject {
             progressCallback?(0.3, "Client info received")
 
             progressCallback?(0.4, "Authenticating with Apple")
-            logging(text: "Starting Apple authentication")
-            
             let (account, session) = try await AppleAPI.shared.authenticate(appleID: appleID, password: password, anisetteData: anisetteData) { [weak self] completionHandler in
                 guard let self else {
                     completionHandler(nil)
                     return
                 }
 
-                logging(text: "AppleAPI requested 2FA code")
                 self.prepareForVerification(using: completionHandler)
             }
-            
+
             progressCallback?(0.65, "Authentication successful")
-            logging(text: "Apple authentication completed successfully")
 
             guard !isAuthenticationCancellationRequested else {
                 throw CancellationError()
@@ -119,8 +115,6 @@ class LoginViewModel: ObservableObject {
 
             return true
         } catch {
-            logging(text: "Authentication error: \(error.localizedDescription)")
-            
             if isAuthenticationCancellationRequested {
                 throw CancellationError()
             }

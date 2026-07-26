@@ -106,6 +106,28 @@ struct LoginSlide: View {
                     Text(viewModel.loginStatus)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                    
+                    // 2FA Input (shown when needed, below progress)
+                    if viewModel.loginViewModel.needVerificationCode {
+                        TextField("Verification Code", text: $viewModel.loginViewModel.verificationCode)
+                            .textFieldStyle(.roundedBorder)
+                            .autocapitalization(.none)
+                            .keyboardType(.numberPad)
+                            .padding(.top)
+                        
+                        Button(action: {
+                            submitTwoFactorCode()
+                        }) {
+                            Text("Verify")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(.blue.gradient)
+                                .cornerRadius(15)
+                        }
+                        .disabled(viewModel.loginViewModel.isVerificationCodeSubmitting)
+                    }
                 }
                 .padding()
                 .background(Color(UIColor.secondarySystemGroupedBackground))
@@ -220,11 +242,39 @@ struct LoginSlide: View {
                     isLoggingIn = false
                     viewModel.nextStep()
                 }
+            } catch is CancellationError {
+                await MainActor.run {
+                    isLoggingIn = false
+                }
             } catch {
                 await MainActor.run {
-                    viewModel.errorMessage = error.localizedDescription
-                    viewModel.showError = true
+                    // If 2FA is needed, don't show error - the 2FA input will be shown
+                    if !viewModel.loginViewModel.needVerificationCode {
+                        viewModel.errorMessage = error.localizedDescription
+                        viewModel.showError = true
+                    }
                     isLoggingIn = false
+                }
+            }
+        }
+    }
+    
+    private func submitTwoFactorCode() {
+        viewModel.loginViewModel.submitVerificationCode()
+        
+        // Wait for authentication to complete
+        Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+            
+            await MainActor.run {
+                if DataManager.shared.model.session != nil {
+                    // Authentication succeeded
+                    isLoggingIn = false
+                    viewModel.nextStep()
+                } else {
+                    // Authentication failed
+                    viewModel.errorMessage = "Failed to verify 2FA code"
+                    viewModel.showError = true
                 }
             }
         }
@@ -269,75 +319,6 @@ struct LoginSlide: View {
         } catch {
             viewModel.errorMessage = "Failed to import account: \(error.localizedDescription)"
             viewModel.showError = true
-        }
-    }
-}
-
-// MARK: - 2FA Slide
-struct TwoFactorSlide: View {
-    @ObservedObject var viewModel: WizardViewModel
-    @State private var twoFactorCode: String = ""
-    
-    var body: some View {
-        VStack(spacing: 30) {
-            Spacer()
-            
-            Image(systemName: "lock.shield.fill")
-                .resizable()
-                .frame(width: 80, height: 80)
-                .foregroundStyle(.blue.gradient)
-            
-            VStack(spacing: 10) {
-                Text("Enter 2FA Code")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(.primary)
-                
-                Text("Enter the verification code sent to your trusted devices")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-            
-            TextField("6-digit code", text: $twoFactorCode)
-                .textFieldStyle(.roundedBorder)
-                .keyboardType(.numberPad)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 24, weight: .bold, design: .monospaced))
-                .padding(.horizontal, 40)
-            
-            Button(action: {
-                submitTwoFactorCode()
-            }) {
-                Text("Verify")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.blue.gradient)
-                    .cornerRadius(15)
-            }
-            .padding(.horizontal, 40)
-            .disabled(twoFactorCode.count != 6)
-            
-            Spacer()
-        }
-        .background(Color(UIColor.systemGroupedBackground))
-    }
-    
-    private func submitTwoFactorCode() {
-        Task {
-            do {
-                try await viewModel.loginViewModel.verifyTwoFactorCode(twoFactorCode)
-                await MainActor.run {
-                    viewModel.nextStep()
-                }
-            } catch {
-                await MainActor.run {
-                    viewModel.errorMessage = error.localizedDescription
-                    viewModel.showError = true
-                }
-            }
         }
     }
 }
@@ -630,9 +611,6 @@ struct WizardView: View {
             
             LoginSlide(viewModel: viewModel)
                 .tag(WizardStep.login)
-            
-            TwoFactorSlide(viewModel: viewModel)
-                .tag(WizardStep.twoFactor)
             
             AppsListSlide(viewModel: viewModel)
                 .tag(WizardStep.apps)

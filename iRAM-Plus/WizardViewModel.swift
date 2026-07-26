@@ -10,10 +10,9 @@ import SwiftUI
 enum WizardStep: Int, CaseIterable {
     case welcome = 0
     case login = 1
-    case twoFactor = 2
-    case apps = 3
-    case addCapability = 4
-    case finish = 5
+    case apps = 2
+    case addCapability = 3
+    case finish = 4
 }
 
 @MainActor
