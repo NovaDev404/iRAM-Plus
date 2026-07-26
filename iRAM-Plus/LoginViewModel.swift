@@ -138,12 +138,12 @@ class LoginViewModel: ObservableObject {
             logToFile("Calling AppleAPI.authenticate...")
             let (account, session) = try await AppleAPI.shared.authenticate(appleID: appleID, password: password, anisetteData: anisetteData) { [weak self] completionHandler in
                 guard let self else {
-                    logToFile("2FA handler: self is nil, calling completionHandler(nil)")
+                    self?.logToFile("2FA handler: self is nil, calling completionHandler(nil)")
                     completionHandler(nil)
                     return
                 }
 
-                logToFile("2FA handler: AppleAPI requested 2FA code, calling prepareForVerification")
+                self.logToFile("2FA handler: AppleAPI requested 2FA code, calling prepareForVerification")
                 self.prepareForVerification(using: completionHandler)
             }
 
