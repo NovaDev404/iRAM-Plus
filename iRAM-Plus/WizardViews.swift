@@ -115,6 +115,17 @@ struct LoginSlide: View {
                         .disabled(viewModel.loginViewModel.isVerificationCodeSubmitting)
                 }
                 
+                if (isLoggingIn || viewModel.loginViewModel.isLoginInProgress) && !viewModel.loginViewModel.needVerificationCode {
+                    VStack(spacing: 8) {
+                        ProgressView(value: viewModel.loginProgress)
+                            .tint(.blue)
+                        Text(viewModel.loginStatus)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 8)
+                }
+                
                 Button(action: {
                     Task { await loginButtonClicked() }
                 }) {

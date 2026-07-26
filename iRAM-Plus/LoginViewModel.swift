@@ -8,7 +8,6 @@ import SwiftUI
 import StosSign_API_NoCertificate
 import StosSign_Auth
 
-@MainActor
 class LoginViewModel: ObservableObject {
     @Published var appleID = ""
     @Published var password = ""
@@ -27,38 +26,55 @@ class LoginViewModel: ObservableObject {
     private var isAuthenticationCancellationRequested = false
     
     func submitVerificationCode() {
-        guard !isVerificationCodeSubmitting,
-              let verificationCodeHandler else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            guard !self.isVerificationCodeSubmitting,
+                  let verificationCodeHandler = self.verificationCodeHandler else { return }
 
-        self.verificationCodeHandler = nil
-        isVerificationCodeSubmitting = true
-        verificationCodeHandler(verificationCode)
+            self.verificationCodeHandler = nil
+            self.isVerificationCodeSubmitting = true
+            verificationCodeHandler(self.verificationCode)
+        }
     }
 
     func cancelAuthentication() {
-        guard isLoginInProgress else { return }
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            guard self.isLoginInProgress else { return }
 
-        isAuthenticationCancellationRequested = true
+            self.isAuthenticationCancellationRequested = true
 
-        let verificationCodeHandler = verificationCodeHandler
-        self.verificationCodeHandler = nil
-        needVerificationCode = false
-        verificationCode = ""
-        isVerificationCodeSubmitting = false
+            let verificationCodeHandler = self.verificationCodeHandler
+            self.verificationCodeHandler = nil
+            self.needVerificationCode = false
+            self.verificationCode = ""
+            self.isVerificationCodeSubmitting = false
 
-        verificationCodeHandler?(nil)
+            verificationCodeHandler?(nil)
+        }
     }
     
     func authenticate() async throws -> Bool {
-        if isLoginInProgress {
+        let shouldReturn = await MainActor.run {
+            if isLoginInProgress {
+                return true
+            }
+            return false
+        }
+        
+        if shouldReturn {
             return false
         }
 
-        logs = ""
-        isLoginInProgress = true
-        isAuthenticationCancellationRequested = false
+        await MainActor.run {
+            logs = ""
+            isLoginInProgress = true
+            isAuthenticationCancellationRequested = false
+        }
 
-        progressCallback?(0.0, "Starting...")
+        await MainActor.run {
+            progressCallback?(0.0, "Starting...")
+        }
 
         func logging(text: String) {
             Task { @MainActor [weak self] in
@@ -70,23 +86,32 @@ class LoginViewModel: ObservableObject {
 
         defer {
             // Only cleanup if we're not waiting for 2FA
-            if !needVerificationCode {
-                verificationCodeHandler = nil
-                appleID = ""
-                password = ""
-                verificationCode = ""
-                isLoginInProgress = false
-                isVerificationCodeSubmitting = false
-                isAuthenticationCancellationRequested = false
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                if !self.needVerificationCode {
+                    self.verificationCodeHandler = nil
+                    self.appleID = ""
+                    self.password = ""
+                    self.verificationCode = ""
+                    self.isLoginInProgress = false
+                    self.isVerificationCodeSubmitting = false
+                    self.isAuthenticationCancellationRequested = false
+                }
             }
         }
 
         do {
-            progressCallback?(0.1, "Trying to get client info")
+            await MainActor.run {
+                progressCallback?(0.1, "Trying to get client info")
+            }
             let anisetteData = try await AnisetteDataHelper.shared.getAnisetteData()
-            progressCallback?(0.3, "Client info received")
+            await MainActor.run {
+                progressCallback?(0.3, "Client info received")
+            }
 
-            progressCallback?(0.4, "Authenticating with Apple")
+            await MainActor.run {
+                progressCallback?(0.4, "Authenticating with Apple")
+            }
             let (account, session) = try await AppleAPI.shared.authenticate(appleID: appleID, password: password, anisetteData: anisetteData) { [weak self] completionHandler in
                 guard let self else {
                     completionHandler(nil)
@@ -96,33 +121,49 @@ class LoginViewModel: ObservableObject {
                 self.prepareForVerification(using: completionHandler)
             }
 
-            progressCallback?(0.65, "Authentication successful")
+            await MainActor.run {
+                progressCallback?(0.65, "Authentication successful")
+            }
 
-            guard !isAuthenticationCancellationRequested else {
+            await MainActor.run {
+                guard !isAuthenticationCancellationRequested else {
+                    return
+                }
+            }
+
+            if await MainActor.run({ isAuthenticationCancellationRequested }) {
                 throw CancellationError()
             }
 
             logging(text: "Successfully signed in")
-            progressCallback?(0.8, "Successfully signed in")
+            await MainActor.run {
+                progressCallback?(0.8, "Successfully signed in")
+            }
 
-            DataManager.shared.model.account = account
-            DataManager.shared.model.session = session
-            Keychain.shared.appleIDEmailAddress = appleID
-            Keychain.shared.appleIDPassword = password
+            await MainActor.run {
+                DataManager.shared.model.account = account
+                DataManager.shared.model.session = session
+                Keychain.shared.appleIDEmailAddress = appleID
+                Keychain.shared.appleIDPassword = password
+            }
 
             let teams = try await fetchTeams(for: account, session: session)
             logging(text: "Successfully fetched teams")
-            availableTeams = teams
-            progressCallback?(1.0, "Successfully fetched teams")
+            await MainActor.run {
+                availableTeams = teams
+                progressCallback?(1.0, "Successfully fetched teams")
+            }
             
             // Auto-select the first team for wizard flow
-            if let firstTeam = teams.first {
-                DataManager.shared.model.team = firstTeam
+            await MainActor.run {
+                if let firstTeam = teams.first {
+                    DataManager.shared.model.team = firstTeam
+                }
             }
 
             return true
         } catch {
-            if isAuthenticationCancellationRequested {
+            if await MainActor.run({ isAuthenticationCancellationRequested }) {
                 throw CancellationError()
             }
             throw error
@@ -130,15 +171,22 @@ class LoginViewModel: ObservableObject {
     }
 
     private func prepareForVerification(using handler: @escaping (String?) -> Void) {
-        guard !isAuthenticationCancellationRequested else {
-            handler(nil)
-            return
-        }
+        Task { @MainActor [weak self] in
+            guard let self else {
+                handler(nil)
+                return
+            }
+            
+            guard !self.isAuthenticationCancellationRequested else {
+                handler(nil)
+                return
+            }
 
-        verificationCodeHandler = handler
-        verificationCode = ""
-        needVerificationCode = true
-        isVerificationCodeSubmitting = false
+            self.verificationCodeHandler = handler
+            self.verificationCode = ""
+            self.needVerificationCode = true
+            self.isVerificationCodeSubmitting = false
+        }
     }
     
     func fetchTeams(for account: Account, session: AppleAPISession) async throws -> [Team]
@@ -157,25 +205,29 @@ class LoginViewModel: ObservableObject {
     }
     
     func verifyTwoFactorCode(_ code: String) async throws {
-        verificationCode = code
+        await MainActor.run {
+            verificationCode = code
+        }
         submitVerificationCode()
         
         // Wait for authentication to complete
         try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
         
         // Check if authentication succeeded
-        if DataManager.shared.model.session == nil {
+        if await MainActor.run({ DataManager.shared.model.session == nil }) {
             throw "Failed to verify 2FA code"
         }
         
         // Cleanup after successful 2FA
-        verificationCodeHandler = nil
-        appleID = ""
-        password = ""
-        needVerificationCode = false
-        verificationCode = ""
-        isLoginInProgress = false
-        isVerificationCodeSubmitting = false
-        isAuthenticationCancellationRequested = false
+        await MainActor.run {
+            verificationCodeHandler = nil
+            appleID = ""
+            password = ""
+            needVerificationCode = false
+            verificationCode = ""
+            isLoginInProgress = false
+            isVerificationCodeSubmitting = false
+            isAuthenticationCancellationRequested = false
+        }
     }
 }
