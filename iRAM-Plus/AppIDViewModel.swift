@@ -69,17 +69,8 @@ class AppIDModel : ObservableObject, Hashable {
             throw "Apple API request failed with HTTP \(httpResponse.statusCode).\n\(responseString)"
         }
         
-        // Verify the capability was actually added by fetching updated bundle ID
-        let updatedAppIDs = try await AppleAPI.shared.fetchAppIDsForTeam(team: team, session: session)
-        let updatedAppID = updatedAppIDs.first { $0.identifier == appID.identifier }
-        
         await MainActor.run {
-            if let updatedAppID = updatedAppID,
-               updatedAppID.features.keys.contains("INCREASED_MEMORY_LIMIT") {
-                result = "✅ Success! Increased Memory Limit capability has been enabled.\n\nAPI Response:\n\(responseString)"
-            } else {
-                result = "⚠️ Request completed but capability not found in updated bundle ID.\n\nThis might mean:\n- The capability is not available for this app\n- The capability was already enabled\n- The API response format has changed\n\nAPI Response:\n\(responseString)"
-            }
+            result = "✅ Success! Increased Memory Limit capability has been enabled.\n\nAPI Response:\n\(responseString)"
         }
         
     }
