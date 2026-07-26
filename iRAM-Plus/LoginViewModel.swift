@@ -149,9 +149,6 @@ class LoginViewModel: ObservableObject {
         verificationCode = ""
         needVerificationCode = true
         isVerificationCodeSubmitting = false
-        
-        // Log when 2FA is requested
-        logging(text: "2FA code requested by Apple")
     }
     
     func fetchTeams(for account: Account, session: AppleAPISession) async throws -> [Team]
@@ -166,7 +163,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func login() async throws {
-        try await authenticate()
+        _ = try await authenticate()
     }
     
     func verifyTwoFactorCode(_ code: String) async throws {
