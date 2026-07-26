@@ -27,7 +27,7 @@ class WizardViewModel: ObservableObject {
     @Published var errorMessage: String = ""
     @Published var showError: Bool = false
     
-    private var loginViewModel = LoginViewModel()
+    let loginViewModel = LoginViewModel()
     
     func nextStep() {
         if let nextStep = WizardStep(rawValue: currentStep.rawValue + 1) {

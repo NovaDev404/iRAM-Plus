@@ -77,7 +77,6 @@ struct WelcomeSlide: View {
 // MARK: - Login Slide
 struct LoginSlide: View {
     @ObservedObject var viewModel: WizardViewModel
-    @StateObject private var loginViewModel = LoginViewModel()
     @State private var appleID: String = ""
     @State private var password: String = ""
     @State private var showFilePicker = false
@@ -204,11 +203,11 @@ struct LoginSlide: View {
     
     private func performLogin() {
         isLoggingIn = true
-        loginViewModel.appleID = appleID
-        loginViewModel.password = password
+        viewModel.loginViewModel.appleID = appleID
+        viewModel.loginViewModel.password = password
         
         // Connect progress callback
-        loginViewModel.progressCallback = { progress, status in
+        viewModel.loginViewModel.progressCallback = { progress, status in
             Task { @MainActor in
                 viewModel.updateLoginProgress(progress: progress, status: status)
             }
@@ -216,9 +215,9 @@ struct LoginSlide: View {
         
         Task {
             do {
-                try await loginViewModel.login()
+                try await viewModel.loginViewModel.login()
                 await MainActor.run {
-                    if loginViewModel.needVerificationCode {
+                    if viewModel.loginViewModel.needVerificationCode {
                         viewModel.goToStep(.twoFactor)
                     } else {
                         viewModel.nextStep()
@@ -248,14 +247,25 @@ struct LoginSlide: View {
             let data = try Data(contentsOf: url)
             let account = try SideStoreAccountImporter.importAccount(from: data)
             
-            loginViewModel.appleID = account.email
-            loginViewModel.password = account.password
+            viewModel.loginViewModel.appleID = account.email
+            viewModel.loginViewModel.password = account.password
+            
+            // Connect progress callback
+            viewModel.loginViewModel.progressCallback = { progress, status in
+                Task { @MainActor in
+                    viewModel.updateLoginProgress(progress: progress, status: status)
+                }
+            }
             
             Task {
                 do {
-                    try await loginViewModel.login()
+                    try await viewModel.loginViewModel.login()
                     await MainActor.run {
-                        viewModel.nextStep()
+                        if viewModel.loginViewModel.needVerificationCode {
+                            viewModel.goToStep(.twoFactor)
+                        } else {
+                            viewModel.nextStep()
+                        }
                     }
                 } catch {
                     await MainActor.run {
@@ -274,7 +284,6 @@ struct LoginSlide: View {
 // MARK: - 2FA Slide
 struct TwoFactorSlide: View {
     @ObservedObject var viewModel: WizardViewModel
-    @StateObject private var loginViewModel = LoginViewModel()
     @State private var twoFactorCode: String = ""
     
     var body: some View {
@@ -327,7 +336,7 @@ struct TwoFactorSlide: View {
     private func submitTwoFactorCode() {
         Task {
             do {
-                try await loginViewModel.verifyTwoFactorCode(twoFactorCode)
+                try await viewModel.loginViewModel.verifyTwoFactorCode(twoFactorCode)
                 await MainActor.run {
                     viewModel.nextStep()
                 }
