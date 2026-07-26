@@ -137,7 +137,7 @@ struct LoginSlide: View {
                         .background(.blue.gradient)
                         .cornerRadius(15)
                 }
-                .disabled(isLoggingIn || viewModel.loginViewModel.isLoginInProgress || viewModel.loginViewModel.isVerificationCodeSubmitting)
+                .disabled(viewModel.loginViewModel.isVerificationCodeSubmitting)
             }
             .padding()
             .background(Color(UIColor.secondarySystemGroupedBackground))
@@ -169,6 +169,7 @@ struct LoginSlide: View {
             if viewModel.loginViewModel.needVerificationCode {
                 try await viewModel.loginViewModel.verifyTwoFactorCode(verificationCode)
                 await MainActor.run {
+                    isLoggingIn = false
                     viewModel.nextStep()
                 }
                 return
@@ -203,6 +204,11 @@ struct LoginSlide: View {
                 if !viewModel.loginViewModel.needVerificationCode {
                     viewModel.errorMessage = error.localizedDescription
                     viewModel.showError = true
+                } else {
+                    // When 2FA is needed, ensure isLoginInProgress is false so the verify button works
+                    viewModel.loginViewModel.isLoginInProgress = false
+                    // Force UI refresh by toggling isLoggingIn
+                    isLoggingIn = false
                 }
                 isLoggingIn = false
             }
