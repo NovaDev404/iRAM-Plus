@@ -81,6 +81,7 @@ struct LoginSlide: View {
     @State private var password: String = ""
     @State private var showFilePicker = false
     @State private var isLoggingIn = false
+    @State private var verificationCode: String = ""
     
     var body: some View {
         VStack(spacing: 20) {
@@ -109,11 +110,14 @@ struct LoginSlide: View {
                     
                     // 2FA Input (shown when needed, below progress)
                     if viewModel.loginViewModel.needVerificationCode {
-                        TextField("Verification Code", text: $viewModel.loginViewModel.verificationCode)
+                        TextField("Verification Code", text: $verificationCode)
                             .textFieldStyle(.roundedBorder)
                             .autocapitalization(.none)
                             .keyboardType(.numberPad)
                             .padding(.top)
+                            .onChange(of: verificationCode) { newValue in
+                                viewModel.loginViewModel.verificationCode = newValue
+                            }
                         
                         Button(action: {
                             submitTwoFactorCode()
@@ -260,6 +264,7 @@ struct LoginSlide: View {
     }
     
     private func submitTwoFactorCode() {
+        viewModel.loginViewModel.verificationCode = verificationCode
         viewModel.loginViewModel.submitVerificationCode()
         
         // Wait for authentication to complete
