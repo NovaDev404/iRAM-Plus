@@ -65,7 +65,13 @@ struct AppIDView : View {
                         NavigationLink {
                             AppIDEditView(viewModel: appID)
                         } label: {
-                            Text(appID.bundleID)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(appID.name)
+                                    .font(.headline)
+                                Text(appID.bundleID)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 } header: {

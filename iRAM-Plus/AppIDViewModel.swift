@@ -19,11 +19,13 @@ class AppIDModel : ObservableObject, Hashable {
     
     var appID: AppID
     @Published var bundleID: String
+    @Published var name: String
     @Published var result: String = ""
     
     init(appID: AppID) {
         self.appID = appID
         bundleID = appID.bundleIdentifier
+        name = appID.name
     }
     
     func addIncreasedMemory() async throws {
