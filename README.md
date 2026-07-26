@@ -5,8 +5,9 @@ A fork of GetMoreRam that allows you to enable "Increased Memory Limit" to your 
 ## Progress
 - [x] Rebrand to iRAM+
 - [x] Add page based steps
-- [ ] Improve UI
-- [ ] Improve user-friendliness
+- [x] Improve UI
+- [x] Improve user-friendliness
+- [ ] Fix UI issues
 
 
 ## How to use
