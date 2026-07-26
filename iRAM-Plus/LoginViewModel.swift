@@ -131,7 +131,7 @@ class LoginViewModel: ObservableObject {
                 }
             }
 
-            if await MainActor.run({ isAuthenticationCancellationRequested }) {
+            if await MainActor.run { isAuthenticationCancellationRequested } {
                 throw CancellationError()
             }
 
@@ -163,7 +163,7 @@ class LoginViewModel: ObservableObject {
 
             return true
         } catch {
-            if await MainActor.run({ isAuthenticationCancellationRequested }) {
+            if await MainActor.run { isAuthenticationCancellationRequested } {
                 throw CancellationError()
             }
             throw error
@@ -214,7 +214,7 @@ class LoginViewModel: ObservableObject {
         try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
         
         // Check if authentication succeeded
-        if await MainActor.run({ DataManager.shared.model.session == nil }) {
+        if await MainActor.run { DataManager.shared.model.session == nil } {
             throw "Failed to verify 2FA code"
         }
         
