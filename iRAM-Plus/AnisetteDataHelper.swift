@@ -25,8 +25,6 @@ final class AnisetteDataHelper
     var mdLu: String?
     var deviceId: String?
     
-    var menuAnisetteURL: String?
-    
     static var shared: AnisetteDataHelper = AnisetteDataHelper()
     
     var loggingFunc: ((String)->Void)?
@@ -390,7 +388,6 @@ final class AnisetteDataHelper
     func fetchAnisetteV3(_ identifier: String, _ adiPb: String) async throws -> AnisetteData {
         try await fetchClientInfo()
         self.printOut("Fetching anisette V3")
-        let url = menuAnisetteURL
         var request = URLRequest(url: self.url!.appendingPathComponent("v3").appendingPathComponent("get_headers"))
         request.httpMethod = "POST"
         request.httpBody = try! JSONSerialization.data(withJSONObject: [

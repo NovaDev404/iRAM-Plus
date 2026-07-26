@@ -69,7 +69,6 @@ class LoginViewModel: ObservableObject {
         AnisetteDataHelper.shared.loggingFunc = logging
 
         defer {
-            verificationCodeHandler = nil
             appleID = ""
             password = ""
             needVerificationCode = false
@@ -114,6 +113,7 @@ class LoginViewModel: ObservableObject {
 
             return true
         } catch {
+            verificationCodeHandler = nil
             if isAuthenticationCancellationRequested {
                 throw CancellationError()
             }

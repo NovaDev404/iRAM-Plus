@@ -16,8 +16,6 @@ struct WelcomeSlide: View {
     
     var body: some View {
         VStack(spacing: 30) {
-            Spacer()
-            
             // App Icon
             Image(systemName: "memorychip.fill")
                 .resizable()
@@ -53,8 +51,6 @@ struct WelcomeSlide: View {
             }
             .padding(.horizontal)
             
-            Spacer()
-            
             Button(action: {
                 DataManager.shared.model.anisetteServerURL = viewModel.anisetteServerURL
                 viewModel.nextStep()
@@ -84,8 +80,6 @@ struct LoginSlide: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Spacer()
-            
             Text("Sign In")
                 .font(.system(size: 32, weight: .bold))
                 .foregroundStyle(.primary)
@@ -172,8 +166,6 @@ struct LoginSlide: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
-            
-            Spacer()
         }
         .fileImporter(
             isPresented: $showFilePicker,
@@ -288,8 +280,6 @@ struct TwoFactorSlide: View {
     
     var body: some View {
         VStack(spacing: 30) {
-            Spacer()
-            
             Image(systemName: "lock.shield.fill")
                 .resizable()
                 .frame(width: 80, height: 80)
@@ -327,8 +317,6 @@ struct TwoFactorSlide: View {
             }
             .padding(.horizontal, 40)
             .disabled(twoFactorCode.count != 6)
-            
-            Spacer()
         }
         .background(Color(UIColor.systemGroupedBackground))
     }
@@ -358,8 +346,6 @@ struct AppsListSlide: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Spacer()
-            
             Text("Choose an App")
                 .font(.system(size: 28, weight: .bold))
                 .foregroundStyle(.primary)
@@ -406,8 +392,6 @@ struct AppsListSlide: View {
                     .padding(.horizontal)
                 }
             }
-            
-            Spacer()
         }
         .task {
             do {
@@ -440,8 +424,6 @@ struct AddCapabilitySlide: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Spacer()
-            
             if let app = viewModel.selectedApp {
                 VStack(spacing: 10) {
                     Text(app.name)
@@ -484,8 +466,6 @@ struct AddCapabilitySlide: View {
                     .padding(.horizontal)
                 }
             }
-            
-            Spacer()
         }
         .alert("Error", isPresented: $viewModel.showError) {
             Button("OK", role: .cancel) { }
@@ -526,8 +506,6 @@ struct FinishSlide: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Spacer()
-            
             Image(systemName: "checkmark.circle.fill")
                 .resizable()
                 .frame(width: 80, height: 80)
@@ -592,8 +570,6 @@ struct FinishSlide: View {
                 .frame(maxHeight: 150)
                 .padding(.horizontal)
             }
-            
-            Spacer()
             
             HStack(spacing: 15) {
                 Button(action: {
