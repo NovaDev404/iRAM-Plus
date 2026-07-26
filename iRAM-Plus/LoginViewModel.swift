@@ -69,14 +69,16 @@ class LoginViewModel: ObservableObject {
         AnisetteDataHelper.shared.loggingFunc = logging
 
         defer {
-            verificationCodeHandler = nil
-            appleID = ""
-            password = ""
-            needVerificationCode = false
-            verificationCode = ""
-            isLoginInProgress = false
-            isVerificationCodeSubmitting = false
-            isAuthenticationCancellationRequested = false
+            // Only cleanup if we're not waiting for 2FA
+            if !needVerificationCode {
+                verificationCodeHandler = nil
+                appleID = ""
+                password = ""
+                verificationCode = ""
+                isLoginInProgress = false
+                isVerificationCodeSubmitting = false
+                isAuthenticationCancellationRequested = false
+            }
         }
 
         do {
@@ -152,5 +154,23 @@ class LoginViewModel: ObservableObject {
     func verifyTwoFactorCode(_ code: String) async throws {
         verificationCode = code
         submitVerificationCode()
+        
+        // Wait for authentication to complete
+        try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+        
+        // Check if authentication succeeded
+        if DataManager.shared.model.session == nil {
+            throw "Failed to verify 2FA code"
+        }
+        
+        // Cleanup after successful 2FA
+        verificationCodeHandler = nil
+        appleID = ""
+        password = ""
+        needVerificationCode = false
+        verificationCode = ""
+        isLoginInProgress = false
+        isVerificationCodeSubmitting = false
+        isAuthenticationCancellationRequested = false
     }
 }

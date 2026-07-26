@@ -97,107 +97,74 @@ struct LoginSlide: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
-            if isLoggingIn {
-                // Progress Section
-                VStack(spacing: 15) {
-                    ProgressView(value: viewModel.loginProgress)
-                        .progressViewStyle(LinearProgressViewStyle(tint: .blue))
-                        .scaleEffect(y: 2)
-                    
-                    Text(viewModel.loginStatus)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    
-                    // 2FA Input (shown when needed, below progress)
-                    if viewModel.loginViewModel.needVerificationCode {
-                        TextField("Verification Code", text: $verificationCode)
-                            .textFieldStyle(.roundedBorder)
-                            .autocapitalization(.none)
-                            .keyboardType(.numberPad)
-                            .padding(.top)
-                            .onChange(of: verificationCode) { newValue in
-                                viewModel.loginViewModel.verificationCode = newValue
-                            }
-                        
-                        Button(action: {
-                            submitTwoFactorCode()
-                        }) {
-                            Text("Verify")
-                                .font(.headline)
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(.blue.gradient)
-                                .cornerRadius(15)
-                        }
+            // Login Form
+            VStack(spacing: 15) {
+                TextField("Apple ID", text: $appleID)
+                    .textFieldStyle(.roundedBorder)
+                    .autocapitalization(.none)
+                    .keyboardType(.emailAddress)
+                    .disabled(isLoggingIn || viewModel.loginViewModel.isLoginInProgress)
+                
+                SecureField("Password", text: $password)
+                    .textFieldStyle(.roundedBorder)
+                    .disabled(isLoggingIn || viewModel.loginViewModel.isLoginInProgress)
+                
+                if viewModel.loginViewModel.needVerificationCode {
+                    TextField("Verification Code", text: $verificationCode)
+                        .textFieldStyle(.roundedBorder)
+                        .autocapitalization(.none)
+                        .keyboardType(.numberPad)
                         .disabled(viewModel.loginViewModel.isVerificationCodeSubmitting)
-                    }
                 }
+                
+                Button(action: {
+                    Task { await loginButtonClicked() }
+                }) {
+                    Text(viewModel.loginViewModel.needVerificationCode ? "Verify" : "Sign In")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(.blue.gradient)
+                        .cornerRadius(15)
+                }
+                .disabled(isLoggingIn || viewModel.loginViewModel.isLoginInProgress || viewModel.loginViewModel.isVerificationCodeSubmitting)
+            }
+            .padding()
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .cornerRadius(15)
+            .padding(.horizontal)
+            
+            // SideStore Import
+            Button(action: {
+                showFilePicker = true
+            }) {
+                HStack {
+                    Image(systemName: "square.and.arrow.down")
+                        .font(.title2)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("Import SideStore Account")
+                            .font(.headline)
+                        Text("Import your SideStore account JSON file")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(.secondary)
+                }
+                .foregroundStyle(.primary)
                 .padding()
                 .background(Color(UIColor.secondarySystemGroupedBackground))
                 .cornerRadius(15)
-                .padding(.horizontal)
-            } else {
-                // Login Options
-                VStack(spacing: 20) {
-                    // SideStore Import
-                    Button(action: {
-                        showFilePicker = true
-                    }) {
-                        HStack {
-                            Image(systemName: "square.and.arrow.down")
-                                .font(.title2)
-                            VStack(alignment: .leading, spacing: 5) {
-                                Text("Import SideStore Account")
-                                    .font(.headline)
-                                Text("Import your SideStore account JSON file")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundStyle(.secondary)
-                        }
-                        .foregroundStyle(.primary)
-                        .padding()
-                        .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .cornerRadius(15)
-                    }
-                    
-                    // Manual Login
-                    VStack(spacing: 15) {
-                        TextField("Apple ID", text: $appleID)
-                            .textFieldStyle(.roundedBorder)
-                            .autocapitalization(.none)
-                            .keyboardType(.emailAddress)
-                        
-                        SecureField("Password", text: $password)
-                            .textFieldStyle(.roundedBorder)
-                        
-                        Button(action: {
-                            performLogin()
-                        }) {
-                            Text("Sign In")
-                                .font(.headline)
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(.blue.gradient)
-                                .cornerRadius(15)
-                        }
-                    }
-                    .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
-                    .cornerRadius(15)
-                }
-                .padding(.horizontal)
-                
-                Text("All authentication is done on-device. Your credentials are never sent to third-party services.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
             }
+            .padding(.horizontal)
+            
+            Text("All authentication is done on-device. Your credentials are never sent to third-party services.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
             
             Spacer()
         }
@@ -227,60 +194,47 @@ struct LoginSlide: View {
         .background(Color(UIColor.systemGroupedBackground))
     }
     
-    private func performLogin() {
-        isLoggingIn = true
-        viewModel.loginViewModel.appleID = appleID
-        viewModel.loginViewModel.password = password
-        
-        // Connect progress callback
-        viewModel.loginViewModel.progressCallback = { progress, status in
-            Task { @MainActor in
-                viewModel.updateLoginProgress(progress: progress, status: status)
-            }
-        }
-        
-        Task {
-            do {
-                try await viewModel.loginViewModel.login()
+    func loginButtonClicked() async {
+        do {
+            if viewModel.loginViewModel.needVerificationCode {
+                try await viewModel.loginViewModel.verifyTwoFactorCode(verificationCode)
                 await MainActor.run {
-                    isLoggingIn = false
                     viewModel.nextStep()
                 }
-            } catch is CancellationError {
-                await MainActor.run {
-                    isLoggingIn = false
-                }
-            } catch {
-                await MainActor.run {
-                    // If 2FA is needed, don't show error - the 2FA input will be shown
-                    if !viewModel.loginViewModel.needVerificationCode {
-                        viewModel.errorMessage = error.localizedDescription
-                        viewModel.showError = true
-                    }
-                    isLoggingIn = false
+                return
+            }
+
+            isLoggingIn = true
+            viewModel.loginViewModel.appleID = appleID
+            viewModel.loginViewModel.password = password
+            
+            // Connect progress callback
+            viewModel.loginViewModel.progressCallback = { progress, status in
+                Task { @MainActor in
+                    viewModel.updateLoginProgress(progress: progress, status: status)
                 }
             }
-        }
-    }
-    
-    private func submitTwoFactorCode() {
-        viewModel.loginViewModel.verificationCode = verificationCode
-        viewModel.loginViewModel.submitVerificationCode()
-        
-        // Wait for authentication to complete
-        Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+            
+            let result = try await viewModel.loginViewModel.authenticate()
             
             await MainActor.run {
-                if DataManager.shared.model.session != nil {
-                    // Authentication succeeded
-                    isLoggingIn = false
+                isLoggingIn = false
+                if result {
                     viewModel.nextStep()
-                } else {
-                    // Authentication failed
-                    viewModel.errorMessage = "Failed to verify 2FA code"
+                }
+            }
+        } catch is CancellationError {
+            await MainActor.run {
+                isLoggingIn = false
+            }
+        } catch {
+            await MainActor.run {
+                // If 2FA is needed, don't show error - the 2FA input will be shown
+                if !viewModel.loginViewModel.needVerificationCode {
+                    viewModel.errorMessage = error.localizedDescription
                     viewModel.showError = true
                 }
+                isLoggingIn = false
             }
         }
     }
