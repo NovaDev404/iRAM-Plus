@@ -22,6 +22,7 @@ This can only enable increased memory for apps installed with apple developer ac
 7. Check if you have "Increased Memory Limit"
 
 ## Credits
-- *NovaDev404* - iRAM+ creator  
-- *Stossy11* - For GetMoreRam and StosSign.  
+- *NovaDev404* - iRAM+ creator
+- *Huge_Black* - Creator of GetMoreRam
+- *Stossy11* - For StosSign  
 - *SideStore* - Anisette Data fetching codes are taken from SideStore  
