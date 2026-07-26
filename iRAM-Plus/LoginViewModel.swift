@@ -30,9 +30,9 @@ class LoginViewModel: ObservableObject {
         guard !isVerificationCodeSubmitting,
               let verificationCodeHandler else { return }
 
-        self.verificationCodeHandler = nil
         isVerificationCodeSubmitting = true
         verificationCodeHandler(verificationCode)
+        self.verificationCodeHandler = nil
     }
 
     func cancelAuthentication() {
@@ -68,33 +68,29 @@ class LoginViewModel: ObservableObject {
         
         AnisetteDataHelper.shared.loggingFunc = logging
 
-        defer {
-            appleID = ""
-            password = ""
-            needVerificationCode = false
-            verificationCode = ""
-            isLoginInProgress = false
-            isVerificationCodeSubmitting = false
-            isAuthenticationCancellationRequested = false
-        }
-
         do {
             progressCallback?(0.1, "Trying to get client info")
             let anisetteData = try await AnisetteDataHelper.shared.getAnisetteData()
             progressCallback?(0.3, "Client info received")
 
-            progressCallback?(0.4, "Fetching Anisette V3")
+            progressCallback?(0.4, "Authenticating with Apple")
+            logging(text: "Starting Apple authentication")
+            
             let (account, session) = try await AppleAPI.shared.authenticate(appleID: appleID, password: password, anisetteData: anisetteData) { [weak self] completionHandler in
                 guard let self else {
                     completionHandler(nil)
                     return
                 }
 
+                logging(text: "AppleAPI requested 2FA code")
                 self.prepareForVerification(using: completionHandler)
             }
-            progressCallback?(0.65, "Anisette is valid")
+            
+            progressCallback?(0.65, "Authentication successful")
+            logging(text: "Apple authentication completed successfully")
 
             guard !isAuthenticationCancellationRequested else {
+                cleanup()
                 throw CancellationError()
             }
 
@@ -111,14 +107,36 @@ class LoginViewModel: ObservableObject {
             availableTeams = teams
             progressCallback?(1.0, "Successfully fetched teams")
 
+            cleanup()
             return true
         } catch {
-            verificationCodeHandler = nil
+            logging(text: "Authentication error: \(error.localizedDescription)")
+            
+            // If 2FA is needed, don't cleanup - keep the handler for later use
+            if needVerificationCode {
+                logging(text: "Authentication paused for 2FA")
+                isLoginInProgress = false
+                return false
+            }
+            
+            cleanup()
+            
             if isAuthenticationCancellationRequested {
                 throw CancellationError()
             }
             throw error
         }
+    }
+    
+    private func cleanup() {
+        verificationCodeHandler = nil
+        appleID = ""
+        password = ""
+        needVerificationCode = false
+        verificationCode = ""
+        isLoginInProgress = false
+        isVerificationCodeSubmitting = false
+        isAuthenticationCancellationRequested = false
     }
 
     private func prepareForVerification(using handler: @escaping (String?) -> Void) {
@@ -131,6 +149,9 @@ class LoginViewModel: ObservableObject {
         verificationCode = ""
         needVerificationCode = true
         isVerificationCodeSubmitting = false
+        
+        // Log when 2FA is requested
+        logging(text: "2FA code requested by Apple")
     }
     
     func fetchTeams(for account: Account, session: AppleAPISession) async throws -> [Team]

@@ -215,17 +215,22 @@ struct LoginSlide: View {
         
         Task {
             do {
-                try await viewModel.loginViewModel.login()
+                // Start authentication - this will pause if 2FA is needed
+                let result = try await viewModel.loginViewModel.authenticate()
+                
                 await MainActor.run {
-                    if viewModel.loginViewModel.needVerificationCode {
-                        viewModel.goToStep(.twoFactor)
-                    } else {
-                        viewModel.nextStep()
-                    }
                     isLoggingIn = false
+                    if result {
+                        // Authentication completed successfully without 2FA
+                        viewModel.nextStep()
+                    } else {
+                        // Authentication paused for 2FA
+                        viewModel.goToStep(.twoFactor)
+                    }
                 }
             } catch {
                 await MainActor.run {
+                    // Actual error
                     viewModel.errorMessage = error.localizedDescription
                     viewModel.showError = true
                     isLoggingIn = false
@@ -259,16 +264,21 @@ struct LoginSlide: View {
             
             Task {
                 do {
-                    try await viewModel.loginViewModel.login()
+                    // Start authentication - this will pause if 2FA is needed
+                    let result = try await viewModel.loginViewModel.authenticate()
+                    
                     await MainActor.run {
-                        if viewModel.loginViewModel.needVerificationCode {
-                            viewModel.goToStep(.twoFactor)
-                        } else {
+                        if result {
+                            // Authentication completed successfully without 2FA
                             viewModel.nextStep()
+                        } else {
+                            // Authentication paused for 2FA
+                            viewModel.goToStep(.twoFactor)
                         }
                     }
                 } catch {
                     await MainActor.run {
+                        // Actual error
                         viewModel.errorMessage = error.localizedDescription
                         viewModel.showError = true
                     }
