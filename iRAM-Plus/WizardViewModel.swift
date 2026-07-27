@@ -91,4 +91,18 @@ class WizardViewModel: ObservableObject {
         loginViewModel.availableTeams = []
         loginViewModel.teamSelectionShow = false
     }
+    
+    func resetLoginState() {
+        loginViewModel.appleID = ""
+        loginViewModel.password = ""
+        loginViewModel.needVerificationCode = false
+        loginViewModel.verificationCode = ""
+        loginViewModel.isLoginInProgress = false
+        loginViewModel.isVerificationCodeSubmitting = false
+        loginViewModel.logs = ""
+        loginProgress = 0.0
+        loginStatus = ""
+        errorMessage = ""
+        showError = false
+    }
 }

@@ -83,6 +83,7 @@ struct WelcomeSlide: View {
             
             Button(action: {
                 DataManager.shared.model.anisetteServerURL = viewModel.anisetteServerURL
+                viewModel.resetLoginState()
                 viewModel.nextStep()
             }) {
                 Text("Get Started")
@@ -111,6 +112,8 @@ struct LoginSlide: View {
     @State private var password: String = ""
     @State private var isLoggingIn = false
     @State private var verificationCode: String = ""
+    @FocusState private var verificationCodeFocused: Bool
+    @State private var previousStep: WizardStep = .welcome
     
     var body: some View {
         VStack(spacing: 20) {
@@ -144,6 +147,8 @@ struct LoginSlide: View {
                         .autocapitalization(.none)
                         .keyboardType(.numberPad)
                         .disabled(viewModel.loginViewModel.isVerificationCodeSubmitting)
+                        .id("verificationCodeInput")
+                        .focused($verificationCodeFocused)
                 }
                 
                 if (isLoggingIn || viewModel.loginViewModel.isLoginInProgress) && !viewModel.loginViewModel.needVerificationCode {
@@ -185,7 +190,11 @@ struct LoginSlide: View {
         }
         .frame(maxWidth: .infinity)
         .alert("Error", isPresented: $viewModel.showError) {
-            Button("Try Again", role: .cancel) { }
+            Button("Try Again", role: .cancel) {
+                // Reset verification code state to allow re-entry
+                viewModel.loginViewModel.isVerificationCodeSubmitting = false
+                verificationCode = ""
+            }
             Button("Clear Keychain") {
                 viewModel.clearKeychain()
                 viewModel.errorMessage = "Successfully cleared keychain. Restart the app and try logging in again."
@@ -195,6 +204,25 @@ struct LoginSlide: View {
         }
         .background(Color(UIColor.systemGroupedBackground))
         .keyboardAdaptive()
+        .onChange(of: viewModel.loginViewModel.needVerificationCode) { newValue in
+            if newValue {
+                // Auto-focus the verification code field when it appears
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    verificationCodeFocused = true
+                }
+            }
+        }
+        .onChange(of: viewModel.currentStep) { newStep in
+            // Reset local state when navigating to login slide
+            if newStep == .login && previousStep != .login {
+                appleID = ""
+                password = ""
+                verificationCode = ""
+                isLoggingIn = false
+                verificationCodeFocused = false
+            }
+            previousStep = newStep
+        }
     }
     
     func loginButtonClicked() async {
@@ -610,5 +638,17 @@ struct WizardView: View {
         .tabViewStyle(.page(indexDisplayMode: .never))
         .ignoresSafeArea()
         .environmentObject(DataManager.shared.model)
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 0 {
+                        // Allow backward swipe (right swipe)
+                        if viewModel.canNavigateToStep(WizardStep(rawValue: viewModel.currentStep.rawValue - 1) ?? viewModel.currentStep) {
+                            viewModel.currentStep = WizardStep(rawValue: viewModel.currentStep.rawValue - 1) ?? viewModel.currentStep
+                        }
+                    }
+                    // Block forward swipe (left swipe)
+                }
+        )
     }
 }
