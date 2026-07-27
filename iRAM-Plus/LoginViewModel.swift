@@ -131,7 +131,7 @@ class LoginViewModel: ObservableObject {
                 }
             }
 
-            if await MainActor.run({ isAuthenticationCancellationRequested }) {
+            if await MainActor.run(body: { isAuthenticationCancellationRequested }) {
                 throw CancellationError()
             }
 
@@ -163,14 +163,14 @@ class LoginViewModel: ObservableObject {
 
             return true
         } catch {
-            if await MainActor.run({ isAuthenticationCancellationRequested }) {
+            if await MainActor.run(body: { isAuthenticationCancellationRequested }) {
                 throw CancellationError()
             }
             throw error
         }
     }
 
-    private func prepareForVerification(using handler: @escaping (String?) -> Void) throws {
+    private func prepareForVerification(using handler: @escaping (String?) -> Void) {
         Task { @MainActor [weak self] in
             guard let self else {
                 handler(nil)
@@ -192,9 +192,8 @@ class LoginViewModel: ObservableObject {
             self.objectWillChange.send()
         }
         
-        // Throw an error to exit authenticate() and unfreeze the UI
-        // The authentication will resume when the user submits the code
-        throw "Two-factor authentication required"
+        // Note: The authentication will be paused and resumed when the user submits the code
+        // The error is handled by the AppleAPI authenticate method
     }
     
     func fetchTeams(for account: Account, session: AppleAPISession) async throws -> [Team]
@@ -222,7 +221,7 @@ class LoginViewModel: ObservableObject {
         try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
         
         // Check if authentication succeeded
-        if await MainActor.run({ DataManager.shared.model.session == nil }) {
+        if await MainActor.run(body: { DataManager.shared.model.session == nil }) {
             throw "Failed to verify 2FA code"
         }
         
