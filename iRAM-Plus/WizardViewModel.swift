@@ -28,14 +28,39 @@ class WizardViewModel: ObservableObject {
     
     let loginViewModel = LoginViewModel()
     
+    private var completedSteps: Set<WizardStep> = []
+    
     func nextStep() {
+        // Mark current step as completed before moving to next
+        completedSteps.insert(currentStep)
         if let nextStep = WizardStep(rawValue: currentStep.rawValue + 1) {
             currentStep = nextStep
         }
     }
     
     func goToStep(_ step: WizardStep) {
+        // Mark all steps up to the target as completed when navigating forward
+        if step.rawValue > currentStep.rawValue {
+            for i in currentStep.rawValue...step.rawValue {
+                if let wizardStep = WizardStep(rawValue: i) {
+                    completedSteps.insert(wizardStep)
+                }
+            }
+        }
         currentStep = step
+    }
+    
+    func canNavigateToStep(_ step: WizardStep) -> Bool {
+        // Allow staying on current step
+        if step == currentStep {
+            return true
+        }
+        // Allow backward navigation
+        if step.rawValue < currentStep.rawValue {
+            return true
+        }
+        // Only allow forward navigation to completed steps
+        return completedSteps.contains(step)
     }
     
     func reset() {
@@ -46,6 +71,7 @@ class WizardViewModel: ObservableObject {
         serverResponse = ""
         errorMessage = ""
         showError = false
+        completedSteps = []
     }
     
     func updateLoginProgress(progress: Double, status: String) {

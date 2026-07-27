@@ -8,6 +8,35 @@
 import SwiftUI
 import StosSign_API_NoCertificate
 import StosSign_Auth
+import Combine
+
+// MARK: - Keyboard Avoidance Modifier
+struct KeyboardAdaptive: ViewModifier {
+    @State private var keyboardHeight: CGFloat = 0
+    
+    func body(content: Content) -> some View {
+        content
+            .padding(.bottom, keyboardHeight)
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
+                withAnimation {
+                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        keyboardHeight = keyboardFrame.height
+                    }
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+                withAnimation {
+                    keyboardHeight = 0
+                }
+            }
+    }
+}
+
+extension View {
+    func keyboardAdaptive() -> some View {
+        self.modifier(KeyboardAdaptive())
+    }
+}
 
 // MARK: - Welcome Slide
 struct WelcomeSlide: View {
@@ -69,7 +98,9 @@ struct WelcomeSlide: View {
             
             Spacer()
         }
+        .frame(maxWidth: .infinity)
         .background(Color(UIColor.systemGroupedBackground))
+        .keyboardAdaptive()
     }
 }
 
@@ -152,6 +183,7 @@ struct LoginSlide: View {
             
             Spacer()
         }
+        .frame(maxWidth: .infinity)
         .alert("Error", isPresented: $viewModel.showError) {
             Button("Try Again", role: .cancel) { }
             Button("Clear Keychain") {
@@ -162,6 +194,7 @@ struct LoginSlide: View {
             Text(viewModel.errorMessage)
         }
         .background(Color(UIColor.systemGroupedBackground))
+        .keyboardAdaptive()
     }
     
     func loginButtonClicked() async {
@@ -200,17 +233,12 @@ struct LoginSlide: View {
             }
         } catch {
             await MainActor.run {
+                isLoggingIn = false
                 // If 2FA is needed, don't show error - the 2FA input will be shown
                 if !viewModel.loginViewModel.needVerificationCode {
                     viewModel.errorMessage = error.localizedDescription
                     viewModel.showError = true
-                } else {
-                    // When 2FA is needed, ensure isLoginInProgress is false so the verify button works
-                    viewModel.loginViewModel.isLoginInProgress = false
-                    // Force UI refresh by toggling isLoggingIn
-                    isLoggingIn = false
                 }
-                isLoggingIn = false
             }
         }
     }
@@ -281,9 +309,11 @@ struct AppsListSlide: View {
             if isLoading {
                 ProgressView()
                     .scaleEffect(1.5)
+                    .frame(maxWidth: .infinity)
             } else if appIDViewModel.appIDs.isEmpty {
                 Text("No apps found")
                     .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
             } else {
                 ScrollView {
                     VStack(spacing: 12) {
@@ -317,6 +347,7 @@ struct AppsListSlide: View {
             
             Spacer()
         }
+        .frame(maxWidth: .infinity)
         .task {
             do {
                 try await appIDViewModel.fetchAppIDs()
@@ -395,6 +426,7 @@ struct AddCapabilitySlide: View {
             
             Spacer()
         }
+        .frame(maxWidth: .infinity)
         .alert("Error", isPresented: $viewModel.showError) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -531,6 +563,7 @@ struct FinishSlide: View {
             .padding(.horizontal)
             .padding(.bottom, 30)
         }
+        .frame(maxWidth: .infinity)
         .background(Color(UIColor.systemGroupedBackground))
     }
 }
@@ -540,7 +573,14 @@ struct WizardView: View {
     @StateObject private var viewModel = WizardViewModel()
     
     var body: some View {
-        TabView(selection: $viewModel.currentStep) {
+        TabView(selection: Binding(
+            get: { viewModel.currentStep },
+            set: { newValue in
+                if viewModel.canNavigateToStep(newValue) {
+                    viewModel.currentStep = newValue
+                }
+            }
+        )) {
             WelcomeSlide(viewModel: viewModel)
                 .tag(WizardStep.welcome)
             

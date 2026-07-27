@@ -186,7 +186,15 @@ class LoginViewModel: ObservableObject {
             self.verificationCode = ""
             self.needVerificationCode = true
             self.isVerificationCodeSubmitting = false
+            self.isLoginInProgress = false
+            
+            // Force UI refresh by triggering objectWillChange
+            self.objectWillChange.send()
         }
+        
+        // Throw an error to exit authenticate() and unfreeze the UI
+        // The authentication will resume when the user submits the code
+        throw "Two-factor authentication required"
     }
     
     func fetchTeams(for account: Account, session: AppleAPISession) async throws -> [Team]
