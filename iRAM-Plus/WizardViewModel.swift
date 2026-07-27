@@ -39,11 +39,11 @@ class WizardViewModel: ObservableObject {
     }
     
     func goToStep(_ step: WizardStep) {
-        // Mark all steps up to the target as completed when navigating forward
-        if step.rawValue > currentStep.rawValue {
-            for i in currentStep.rawValue...step.rawValue {
+        // Mark all steps after the target as incomplete when navigating backward
+        if step.rawValue < currentStep.rawValue {
+            for i in (step.rawValue + 1)...currentStep.rawValue {
                 if let wizardStep = WizardStep(rawValue: i) {
-                    completedSteps.insert(wizardStep)
+                    completedSteps.remove(wizardStep)
                 }
             }
         }
@@ -55,12 +55,8 @@ class WizardViewModel: ObservableObject {
         if step == currentStep {
             return true
         }
-        // Allow backward navigation
-        if step.rawValue < currentStep.rawValue {
-            return true
-        }
-        // Only allow forward navigation to completed steps
-        return completedSteps.contains(step)
+        // Only allow backward navigation, never forward
+        return step.rawValue < currentStep.rawValue
     }
     
     func reset() {

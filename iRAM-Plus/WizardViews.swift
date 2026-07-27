@@ -198,46 +198,57 @@ struct LoginSlide: View {
     }
     
     func loginButtonClicked() async {
-        do {
-            if viewModel.loginViewModel.needVerificationCode {
+        if viewModel.loginViewModel.needVerificationCode {
+            do {
                 try await viewModel.loginViewModel.verifyTwoFactorCode(verificationCode)
                 await MainActor.run {
                     isLoggingIn = false
                     viewModel.nextStep()
                 }
-                return
-            }
-
-            isLoggingIn = true
-            viewModel.loginViewModel.appleID = appleID
-            viewModel.loginViewModel.password = password
-            
-            // Connect progress callback
-            viewModel.loginViewModel.progressCallback = { progress, status in
-                Task { @MainActor in
-                    viewModel.updateLoginProgress(progress: progress, status: status)
-                }
-            }
-            
-            let result = try await viewModel.loginViewModel.authenticate()
-            
-            await MainActor.run {
-                isLoggingIn = false
-                if result {
-                    viewModel.nextStep()
-                }
-            }
-        } catch is CancellationError {
-            await MainActor.run {
-                isLoggingIn = false
-            }
-        } catch {
-            await MainActor.run {
-                isLoggingIn = false
-                // If 2FA is needed, don't show error - the 2FA input will be shown
-                if !viewModel.loginViewModel.needVerificationCode {
+            } catch {
+                await MainActor.run {
                     viewModel.errorMessage = error.localizedDescription
                     viewModel.showError = true
+                    isLoggingIn = false
+                }
+            }
+            return
+        }
+
+        isLoggingIn = true
+        viewModel.loginViewModel.appleID = appleID
+        viewModel.loginViewModel.password = password
+        
+        // Connect progress callback
+        viewModel.loginViewModel.progressCallback = { progress, status in
+            Task { @MainActor in
+                viewModel.updateLoginProgress(progress: progress, status: status)
+            }
+        }
+        
+        // Start authentication in background so UI doesn't freeze
+        Task {
+            do {
+                let result = try await viewModel.loginViewModel.authenticate()
+                
+                await MainActor.run {
+                    isLoggingIn = false
+                    if result {
+                        viewModel.nextStep()
+                    }
+                }
+            } catch is CancellationError {
+                await MainActor.run {
+                    isLoggingIn = false
+                }
+            } catch {
+                await MainActor.run {
+                    isLoggingIn = false
+                    // If 2FA is needed, don't show error - the 2FA input will be shown
+                    if !viewModel.loginViewModel.needVerificationCode {
+                        viewModel.errorMessage = error.localizedDescription
+                        viewModel.showError = true
+                    }
                 }
             }
         }

@@ -191,9 +191,6 @@ class LoginViewModel: ObservableObject {
             // Force UI refresh by triggering objectWillChange
             self.objectWillChange.send()
         }
-        
-        // Note: The authentication will be paused and resumed when the user submits the code
-        // The error is handled by the AppleAPI authenticate method
     }
     
     func fetchTeams(for account: Account, session: AppleAPISession) async throws -> [Team]
