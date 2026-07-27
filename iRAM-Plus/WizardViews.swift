@@ -192,7 +192,7 @@ struct LoginSlide: View {
         .alert("Error", isPresented: $viewModel.showError) {
             Button("Try Again", role: .cancel) {
                 // Reset verification code state to allow re-entry
-                viewModel.loginViewModel.isVerificationCodeSubmitting = false
+                viewModel.loginViewModel.resetVerificationCodeState()
                 verificationCode = ""
             }
             Button("Clear Keychain") {

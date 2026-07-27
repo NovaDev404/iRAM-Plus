@@ -234,4 +234,9 @@ class LoginViewModel: ObservableObject {
             isAuthenticationCancellationRequested = false
         }
     }
+    
+    func resetVerificationCodeState() {
+        isVerificationCodeSubmitting = false
+        verificationCode = ""
+    }
 }

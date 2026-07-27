@@ -98,7 +98,7 @@ class WizardViewModel: ObservableObject {
         loginViewModel.needVerificationCode = false
         loginViewModel.verificationCode = ""
         loginViewModel.isLoginInProgress = false
-        loginViewModel.isVerificationCodeSubmitting = false
+        loginViewModel.resetVerificationCodeState()
         loginViewModel.logs = ""
         loginProgress = 0.0
         loginStatus = ""
