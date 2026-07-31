@@ -25,4 +25,5 @@ A fork of GetMoreRam that allows you to enable `Increased Memory Limit` to your 
 - *NovaDev404* - iRAM+ creator
 - *Huge_Black* - Creator of GetMoreRam
 - *Stossy11* - For StosSign  
-- *SideStore* - Anisette Data fetching codes are taken from SideStore  
+- *SideStore* - Anisette Data fetching codes are taken from SideStore
+- *Sayborduu* - For fixing a 2FA bug in the code
