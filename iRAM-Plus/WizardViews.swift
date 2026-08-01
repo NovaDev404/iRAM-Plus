@@ -28,6 +28,7 @@ struct KeyboardAdaptive: ViewModifier {
                     keyboardHeight = 0
                 }
             }
+        .padding(.bottom, keyboardHeight)
     }
 }
 
@@ -731,23 +732,27 @@ struct WizardView: View {
     @StateObject private var viewModel = WizardViewModel()
     
     var body: some View {
-        Group {
-            switch viewModel.currentStep {
-            case .welcome:
-                WelcomeSlide(viewModel: viewModel)
-            case .login:
-                LoginSlide(viewModel: viewModel)
-            case .apps:
-                AppsListSlide(viewModel: viewModel)
-            case .addCapability:
-                AddCapabilitySlide(viewModel: viewModel)
-            case .finish:
-                FinishSlide(viewModel: viewModel)
-            case .settings:
-                SettingsSlide(viewModel: viewModel)
+        ZStack {
+            Color(UIColor.systemGroupedBackground)
+                .ignoresSafeArea()
+
+            Group {
+                switch viewModel.currentStep {
+                case .welcome:
+                    WelcomeSlide(viewModel: viewModel)
+                case .login:
+                    LoginSlide(viewModel: viewModel)
+                case .apps:
+                    AppsListSlide(viewModel: viewModel)
+                case .addCapability:
+                    AddCapabilitySlide(viewModel: viewModel)
+                case .finish:
+                    FinishSlide(viewModel: viewModel)
+                case .settings:
+                    SettingsSlide(viewModel: viewModel)
+                }
             }
         }
-        .ignoresSafeArea()
         .environmentObject(DataManager.shared.model)
     }
 }
