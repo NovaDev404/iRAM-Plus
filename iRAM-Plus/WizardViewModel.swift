@@ -13,6 +13,7 @@ enum WizardStep: Int, CaseIterable {
     case apps = 2
     case addCapability = 3
     case finish = 4
+    case settings = 5
 }
 
 @MainActor

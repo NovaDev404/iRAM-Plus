@@ -44,6 +44,18 @@ struct WelcomeSlide: View {
     
     var body: some View {
         VStack(spacing: 30) {
+            HStack {
+                Spacer()
+                Button(action: {
+                    viewModel.goToStep(.settings)
+                }) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.title2)
+                        .foregroundStyle(.blue)
+                }
+            }
+            .padding(.horizontal)
+            
             Spacer()
             
             // App Icon
@@ -66,6 +78,59 @@ struct WelcomeSlide: View {
             
             Spacer()
             
+            Button(action: {
+                DataManager.shared.model.anisetteServerURL = viewModel.anisetteServerURL
+                viewModel.resetLoginState()
+                viewModel.nextStep()
+            }) {
+                Text("Get Started")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(.blue.gradient)
+                    .cornerRadius(15)
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 30)
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .background(Color(UIColor.systemGroupedBackground))
+        .keyboardAdaptive()
+    }
+}
+
+// MARK: - Settings Slide
+struct SettingsSlide: View {
+    @ObservedObject var viewModel: WizardViewModel
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            HStack {
+                Button(action: {
+                    viewModel.goToStep(.welcome)
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.headline)
+                    .foregroundStyle(.blue)
+                }
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            Spacer()
+            
+            Text("Settings")
+                .font(.system(size: 32, weight: .bold))
+                .foregroundStyle(.primary)
+            
+            Spacer()
+            
             VStack(alignment: .leading, spacing: 15) {
                 Text("Anisette Server URL")
                     .font(.headline)
@@ -79,14 +144,16 @@ struct WelcomeSlide: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            .padding()
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .cornerRadius(15)
             .padding(.horizontal)
             
             Button(action: {
                 DataManager.shared.model.anisetteServerURL = viewModel.anisetteServerURL
-                viewModel.resetLoginState()
-                viewModel.nextStep()
+                viewModel.goToStep(.welcome)
             }) {
-                Text("Get Started")
+                Text("Save")
                     .font(.headline)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -675,6 +742,8 @@ struct WizardView: View {
                 AddCapabilitySlide(viewModel: viewModel)
             case .finish:
                 FinishSlide(viewModel: viewModel)
+            case .settings:
+                SettingsSlide(viewModel: viewModel)
             }
         }
         .ignoresSafeArea()
