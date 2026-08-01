@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Combine
 
 enum WizardStep: Int, CaseIterable {
     case welcome = 0
@@ -29,37 +28,16 @@ class WizardViewModel: ObservableObject {
     
     let loginViewModel = LoginViewModel()
     
-    private var completedSteps: Set<WizardStep> = []
-    private var cancellables = Set<AnyCancellable>()
-    
     func nextStep() {
-        // Mark current step as completed before moving to next
-        completedSteps.insert(currentStep)
         if let nextStep = WizardStep(rawValue: currentStep.rawValue + 1) {
             currentStep = nextStep
         }
     }
     
     func goToStep(_ step: WizardStep) {
-        // Mark all steps after the target as incomplete when navigating backward
-        if step.rawValue < currentStep.rawValue {
-            for i in (step.rawValue + 1)...currentStep.rawValue {
-                if let wizardStep = WizardStep(rawValue: i) {
-                    completedSteps.remove(wizardStep)
-                }
-            }
-        }
         currentStep = step
     }
     
-    func canNavigateToStep(_ step: WizardStep) -> Bool {
-        // Allow staying on current step
-        if step == currentStep {
-            return true
-        }
-        // Only allow backward navigation, never forward
-        return step.rawValue < currentStep.rawValue
-    }
     
     func reset() {
         currentStep = .welcome
@@ -69,7 +47,6 @@ class WizardViewModel: ObservableObject {
         serverResponse = ""
         errorMessage = ""
         showError = false
-        completedSteps = []
     }
     
     func updateLoginProgress(progress: Double, status: String) {
@@ -108,9 +85,4 @@ class WizardViewModel: ObservableObject {
         showError = false
     }
 
-    init() {
-        loginViewModel.objectWillChange.sink { [weak self] _ in
-            self?.objectWillChange.send()
-        }.store(in: &cancellables)
-    }
 }

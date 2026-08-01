@@ -117,6 +117,20 @@ struct LoginSlide: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            HStack {
+                Button(action: {
+                    viewModel.goToStep(.welcome)
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.headline)
+                    .foregroundStyle(.blue)
+                }
+                Spacer()
+            }
+            .padding(.horizontal)
             Spacer()
             
             Text("Sign In")
@@ -333,6 +347,20 @@ struct AppsListSlide: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            HStack {
+                Button(action: {
+                    viewModel.goToStep(.login)
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.headline)
+                    .foregroundStyle(.blue)
+                }
+                Spacer()
+            }
+            .padding(.horizontal)
             Spacer()
             
             Text("Choose an App")
@@ -418,6 +446,20 @@ struct AddCapabilitySlide: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            HStack {
+                Button(action: {
+                    viewModel.goToStep(.apps)
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.headline)
+                    .foregroundStyle(.blue)
+                }
+                Spacer()
+            }
+            .padding(.horizontal)
             Spacer()
             
             if let app = viewModel.selectedApp {
@@ -489,8 +531,17 @@ struct AddCapabilitySlide: View {
                 }
             } catch {
                 await MainActor.run {
-                    viewModel.errorMessage = error.localizedDescription
-                    viewModel.showError = true
+                    // Check if error is authentication/session expired
+                    let errorDescription = error.localizedDescription.lowercased()
+                    if errorDescription.contains("401") || errorDescription.contains("not_authorized") || errorDescription.contains("session has expired") {
+                        // Navigate back to login page
+                        viewModel.goToStep(.login)
+                        viewModel.errorMessage = "Your session has expired. Please log in again."
+                        viewModel.showError = true
+                    } else {
+                        viewModel.errorMessage = error.localizedDescription
+                        viewModel.showError = true
+                    }
                     isAdding = false
                 }
             }
@@ -612,43 +663,21 @@ struct WizardView: View {
     @StateObject private var viewModel = WizardViewModel()
     
     var body: some View {
-        TabView(selection: Binding(
-            get: { viewModel.currentStep },
-            set: { newValue in
-                if viewModel.canNavigateToStep(newValue) {
-                    viewModel.currentStep = newValue
-                }
+        Group {
+            switch viewModel.currentStep {
+            case .welcome:
+                WelcomeSlide(viewModel: viewModel)
+            case .login:
+                LoginSlide(viewModel: viewModel)
+            case .apps:
+                AppsListSlide(viewModel: viewModel)
+            case .addCapability:
+                AddCapabilitySlide(viewModel: viewModel)
+            case .finish:
+                FinishSlide(viewModel: viewModel)
             }
-        )) {
-            WelcomeSlide(viewModel: viewModel)
-                .tag(WizardStep.welcome)
-            
-            LoginSlide(viewModel: viewModel)
-                .tag(WizardStep.login)
-            
-            AppsListSlide(viewModel: viewModel)
-                .tag(WizardStep.apps)
-            
-            AddCapabilitySlide(viewModel: viewModel)
-                .tag(WizardStep.addCapability)
-            
-            FinishSlide(viewModel: viewModel)
-                .tag(WizardStep.finish)
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
         .ignoresSafeArea()
         .environmentObject(DataManager.shared.model)
-        .gesture(
-            DragGesture()
-                .onEnded { value in
-                    if value.translation.width > 0 {
-                        // Allow backward swipe (right swipe)
-                        if viewModel.canNavigateToStep(WizardStep(rawValue: viewModel.currentStep.rawValue - 1) ?? viewModel.currentStep) {
-                            viewModel.currentStep = WizardStep(rawValue: viewModel.currentStep.rawValue - 1) ?? viewModel.currentStep
-                        }
-                    }
-                    // Block forward swipe (left swipe)
-                }
-        )
     }
 }
