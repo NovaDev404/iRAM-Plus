@@ -4,14 +4,6 @@
 A fork of GetMoreRam that allows you to enable `Increased Memory Limit` to your sideloaded apps directly on device.  
 > ⚠️ This can only enable increased memory for apps installed with apple developer accounts and not with public enterprise certifiates.
 
-## Progress
-- [x] Rebrand to iRAM+
-- [x] Add page based steps
-- [x] Improve UI
-- [x] Improve user-friendliness
-- [ ] Fix UI issues
-
-
 ## How to use
 1. [Download](https://github.com/NovaDev404/iRAM-Plus/releases/latest/download/iRAM-Plus.ipa) the latest IPA
 2. Sideload this app
