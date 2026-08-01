@@ -16,7 +16,6 @@ struct KeyboardAdaptive: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .padding(.bottom, keyboardHeight)
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notification in
                 withAnimation {
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
@@ -55,6 +54,7 @@ struct WelcomeSlide: View {
                 }
             }
             .padding(.horizontal)
+            .padding(.top, 10)
             
             Spacer()
             
@@ -198,6 +198,7 @@ struct LoginSlide: View {
                 Spacer()
             }
             .padding(.horizontal)
+            .padding(.top, 10)
             Spacer()
             
             Text("Sign In")
