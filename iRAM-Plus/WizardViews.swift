@@ -134,13 +134,42 @@ struct SettingsSlide: View {
             Spacer()
             
             VStack(alignment: .leading, spacing: 15) {
-                Text("Anisette Server URL")
+                Text("Anisette Server")
                     .font(.headline)
                 
-                TextField("https://ani.sidestore.io", text: $viewModel.anisetteServerURL)
-                    .textFieldStyle(.roundedBorder)
-                    .autocapitalization(.none)
-                    .keyboardType(.URL)
+                if viewModel.anisetteServers.isEmpty {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                } else {
+                    Picker("Server", selection: $viewModel.selectedAnisetteServer) {
+                        ForEach(viewModel.anisetteServers) { server in
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(server.name)
+                                    .font(.body)
+                                Text(server.address)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .tag(server)
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Custom")
+                                .font(.body)
+                            Text("Enter custom URL")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .tag(AnisetteServer.custom)
+                    }
+                    .pickerStyle(.menu)
+                }
+                
+                if viewModel.selectedAnisetteServer == AnisetteServer.custom {
+                    TextField("https://example.com", text: $viewModel.customAnisetteURL)
+                        .textFieldStyle(.roundedBorder)
+                        .autocapitalization(.none)
+                        .keyboardType(.URL)
+                }
                 
                 Text("This server provides device authentication data for Apple Developer API access.")
                     .font(.caption)
@@ -188,7 +217,7 @@ struct SettingsSlide: View {
                 DataManager.shared.model.anisetteServerURL = viewModel.anisetteServerURL
                 viewModel.goToStep(.welcome)
             }) {
-                Text("Save")
+                Text("Done")
                     .font(.headline)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -204,6 +233,9 @@ struct SettingsSlide: View {
         .frame(maxWidth: .infinity)
         .background(Color(UIColor.systemGroupedBackground))
         .keyboardAdaptive()
+        .task {
+            await viewModel.fetchAnisetteServers()
+        }
     }
 }
 

@@ -8,6 +8,23 @@
 import SwiftUI
 import Combine
 
+struct AnisetteServer: Codable, Identifiable, Equatable {
+    let id = UUID()
+    let name: String
+    let address: String
+    
+    enum CodingKeys: String, CodingKey {
+        case name, address
+    }
+    
+    static let custom = AnisetteServer(name: "Custom", address: "")
+}
+
+struct AnisetteServerList: Codable {
+    let servers: [AnisetteServer]
+    let cache: String
+}
+
 enum WizardStep: Int, CaseIterable {
     case welcome = 0
     case login = 1
@@ -30,6 +47,24 @@ class WizardViewModel: ObservableObject {
     @Published var saveLoginToKeychain = UserDefaults.standard.bool(forKey: "saveLoginToKeychain") {
         didSet {
             UserDefaults.standard.set(saveLoginToKeychain, forKey: "saveLoginToKeychain")
+        }
+    }
+    @Published var anisetteServers: [AnisetteServer] = []
+    @Published var selectedAnisetteServer: AnisetteServer = AnisetteServer.custom {
+        didSet {
+            if selectedAnisetteServer != AnisetteServer.custom {
+                anisetteServerURL = selectedAnisetteServer.address
+                UserDefaults.standard.set(selectedAnisetteServer.name, forKey: "selectedAnisetteServerName")
+                UserDefaults.standard.set(selectedAnisetteServer.address, forKey: "selectedAnisetteServerAddress")
+            }
+        }
+    }
+    @Published var customAnisetteURL: String = "" {
+        didSet {
+            if selectedAnisetteServer == AnisetteServer.custom {
+                anisetteServerURL = customAnisetteURL
+                UserDefaults.standard.set(customAnisetteURL, forKey: "customAnisetteURL")
+            }
         }
     }
     
@@ -93,7 +128,32 @@ class WizardViewModel: ObservableObject {
         showError = false
     }
     
+    func fetchAnisetteServers() async {
+        guard let url = URL(string: "https://servers.sidestore.io/servers.json") else { return }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let serverList = try JSONDecoder().decode(AnisetteServerList.self, from: data)
+            await MainActor.run {
+                anisetteServers = serverList.servers
+                // Restore saved selection
+                if let savedName = UserDefaults.standard.string(forKey: "selectedAnisetteServerName"),
+                   let savedAddress = UserDefaults.standard.string(forKey: "selectedAnisetteServerAddress") {
+                    if let savedServer = anisetteServers.first(where: { $0.name == savedName && $0.address == savedAddress }) {
+                        selectedAnisetteServer = savedServer
+                        anisetteServerURL = savedAddress
+                    }
+                }
+            }
+        } catch {
+            print("Failed to fetch anisette servers: \(error)")
+        }
+    }
+    
     init() {
+        // Load custom URL if saved
+        customAnisetteURL = UserDefaults.standard.string(forKey: "customAnisetteURL") ?? ""
+        
         loginViewModel.objectWillChange.sink { [weak self] _ in
             self?.objectWillChange.send()
         }.store(in: &cancellables)
