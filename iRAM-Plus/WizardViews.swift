@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 import StosSign_API_NoCertificate
 import StosSign_Auth
 import Combine
@@ -567,7 +568,14 @@ struct AppsListSlide: View {
                                 viewModel.selectedApp = appID
                                 viewModel.nextStep()
                             }) {
-                                HStack {
+                                HStack(spacing: 12) {
+                                    let iconName = getAppIconName(for: appID.bundleID)
+                                    Image(iconName)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(appID.name)
                                             .font(.headline)

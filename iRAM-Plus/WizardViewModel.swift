@@ -25,6 +25,34 @@ struct AnisetteServerList: Codable {
     let cache: String
 }
 
+func getAppIconName(for bundleID: String) -> String {
+    let bundleID = bundleID.lowercased()
+    
+    if bundleID.contains("com.rileytestut.altstore") {
+        return "altstore"
+    } else if bundleID.contains("org.angelauramc.amethyst") {
+        return "amethyst"
+    } else if bundleID.contains("me.oatmealdome.dolphinios") {
+        return "dolphinios"
+    } else if bundleID.contains("com.flyinghead.flycast") || bundleID.contains("com.flycast.emulator") || bundleID.contains("org.openemu.flycast") || bundleID.contains("org.flycast.flycast") {
+        return "flycast"
+    } else if bundleID.contains("novadev.iram-plus") {
+        return "iram"
+    } else if bundleID.contains("com.stossy11.melonx") || bundleID.contains("org.ryujinx.ryujinx") {
+        return "melo"
+    } else if bundleID.contains("net.kdt.pojavlauncher") {
+        return "pojav"
+    } else if bundleID.contains("org.ppsspp.ppsspp") {
+        return "ppsspp"
+    } else if bundleID.contains("com.sidestore.sidestore") {
+        return "sidestore"
+    } else if bundleID.contains("com.utmapp.utm-se") || bundleID.contains("com.utmapp.utm") {
+        return "utm"
+    }
+    
+    return "fallback"
+}
+
 enum WizardStep: Int, CaseIterable {
     case welcome = 0
     case login = 1
