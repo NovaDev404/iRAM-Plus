@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 enum WizardStep: Int, CaseIterable {
     case welcome = 0
@@ -33,6 +34,7 @@ class WizardViewModel: ObservableObject {
     }
     
     let loginViewModel = LoginViewModel()
+    private var cancellables = Set<AnyCancellable>()
     
     func nextStep() {
         if let nextStep = WizardStep(rawValue: currentStep.rawValue + 1) {
@@ -89,6 +91,12 @@ class WizardViewModel: ObservableObject {
         loginStatus = ""
         errorMessage = ""
         showError = false
+    }
+    
+    init() {
+        loginViewModel.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }.store(in: &cancellables)
     }
 
 }
