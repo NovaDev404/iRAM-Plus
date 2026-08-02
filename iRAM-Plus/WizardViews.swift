@@ -141,7 +141,7 @@ struct SettingsSlide: View {
                     ProgressView()
                         .frame(maxWidth: .infinity)
                 } else {
-                    Picker("Server", selection: $viewModel.selectedAnisetteServer) {
+                    Picker(selection: $viewModel.selectedAnisetteServer) {
                         ForEach(viewModel.anisetteServers) { server in
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(server.name)
@@ -160,8 +160,11 @@ struct SettingsSlide: View {
                                 .foregroundStyle(.secondary)
                         }
                         .tag(AnisetteServer.custom)
+                    } label: {
+                        EmptyView()
                     }
                     .pickerStyle(.menu)
+                    .frame(maxWidth: .infinity)
                 }
                 
                 if viewModel.selectedAnisetteServer == AnisetteServer.custom {

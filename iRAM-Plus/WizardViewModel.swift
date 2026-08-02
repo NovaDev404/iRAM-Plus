@@ -136,13 +136,19 @@ class WizardViewModel: ObservableObject {
             let serverList = try JSONDecoder().decode(AnisetteServerList.self, from: data)
             await MainActor.run {
                 anisetteServers = serverList.servers
-                // Restore saved selection
+                // Restore saved selection or default to first server
                 if let savedName = UserDefaults.standard.string(forKey: "selectedAnisetteServerName"),
                    let savedAddress = UserDefaults.standard.string(forKey: "selectedAnisetteServerAddress") {
                     if let savedServer = anisetteServers.first(where: { $0.name == savedName && $0.address == savedAddress }) {
                         selectedAnisetteServer = savedServer
                         anisetteServerURL = savedAddress
+                    } else if let firstServer = anisetteServers.first {
+                        selectedAnisetteServer = firstServer
+                        anisetteServerURL = firstServer.address
                     }
+                } else if let firstServer = anisetteServers.first {
+                    selectedAnisetteServer = firstServer
+                    anisetteServerURL = firstServer.address
                 }
             }
         } catch {
