@@ -212,11 +212,20 @@ class LoginViewModel: ObservableObject {
         }
         submitVerificationCode()
         
-        // Wait for authentication to complete
-        try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+        // Wait for authentication to complete with timeout
+        let startTime = Date()
+        var sessionSet = false
+        
+        while Date().timeIntervalSince(startTime) < 10 {
+            if await MainActor.run(body: { DataManager.shared.model.session != nil }) {
+                sessionSet = true
+                break
+            }
+            try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        }
         
         // Check if authentication succeeded
-        if await MainActor.run(body: { DataManager.shared.model.session == nil }) {
+        if !sessionSet {
             throw "Failed to verify 2FA code"
         }
         

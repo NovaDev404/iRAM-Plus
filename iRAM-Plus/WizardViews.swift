@@ -314,13 +314,27 @@ struct LoginSlide: View {
                 Button(action: {
                     Task { await loginButtonClicked() }
                 }) {
-                    Text(viewModel.loginViewModel.needVerificationCode ? "Verify" : "Sign In")
-                        .font(.headline)
-                        .foregroundStyle(.white)
+                    if viewModel.loginViewModel.needVerificationCode && viewModel.loginViewModel.isVerificationCodeSubmitting {
+                        HStack(spacing: 8) {
+                            ProgressView()
+                                .tint(.white)
+                            Text("Verifying...")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                        }
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(.blue.gradient)
                         .cornerRadius(15)
+                    } else {
+                        Text(viewModel.loginViewModel.needVerificationCode ? "Verify" : "Sign In")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(.blue.gradient)
+                            .cornerRadius(15)
+                    }
                 }
                 .disabled(viewModel.loginViewModel.isVerificationCodeSubmitting)
             }
