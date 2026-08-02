@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-struct AnisetteServer: Codable, Identifiable, Equatable {
+struct AnisetteServer: Codable, Identifiable, Equatable, Hashable {
     let id = UUID()
     let name: String
     let address: String
