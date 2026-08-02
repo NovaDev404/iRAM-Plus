@@ -9,6 +9,12 @@ import SwiftUI
 
 @main
 struct iRAMPlusApp: App {
+    init() {
+        UserDefaults.standard.register(defaults: [
+            "saveLoginToKeychain": true
+        ])
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

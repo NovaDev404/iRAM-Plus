@@ -143,8 +143,6 @@ class LoginViewModel: ObservableObject {
             await MainActor.run {
                 DataManager.shared.model.account = account
                 DataManager.shared.model.session = session
-                Keychain.shared.appleIDEmailAddress = appleID
-                Keychain.shared.appleIDPassword = password
             }
 
             let teams = try await fetchTeams(for: account, session: session)

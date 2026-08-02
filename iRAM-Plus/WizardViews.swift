@@ -151,6 +151,39 @@ struct SettingsSlide: View {
             .cornerRadius(15)
             .padding(.horizontal)
             
+            VStack(alignment: .leading, spacing: 15) {
+                HStack {
+                    Text("Save login to keychain")
+                        .font(.headline)
+                    Spacer()
+                    Toggle("", isOn: $viewModel.saveLoginToKeychain)
+                        .labelsHidden()
+                }
+                
+                Text("Automatically save your Apple ID and password for faster login.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .cornerRadius(15)
+            .padding(.horizontal)
+            
+            Button(action: {
+                viewModel.clearKeychain()
+                viewModel.errorMessage = "Saved logins cleared successfully."
+                viewModel.showError = true
+            }) {
+                Text("Clear saved logins")
+                    .font(.headline)
+                    .foregroundStyle(.red)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(15)
+            }
+            .padding(.horizontal)
+            
             Button(action: {
                 DataManager.shared.model.anisetteServerURL = viewModel.anisetteServerURL
                 viewModel.goToStep(.welcome)
@@ -299,8 +332,14 @@ struct LoginSlide: View {
         .onChange(of: viewModel.currentStep) { newStep in
             // Reset local state when navigating to login slide
             if newStep == .login && previousStep != .login {
-                appleID = ""
-                password = ""
+                if viewModel.saveLoginToKeychain {
+                    // Auto-fill from keychain if enabled
+                    appleID = Keychain.shared.appleIDEmailAddress ?? ""
+                    password = Keychain.shared.appleIDPassword ?? ""
+                } else {
+                    appleID = ""
+                    password = ""
+                }
                 verificationCode = ""
                 isLoggingIn = false
                 verificationCodeFocused = false
@@ -346,6 +385,11 @@ struct LoginSlide: View {
                 await MainActor.run {
                     isLoggingIn = false
                     if result {
+                        // Save to keychain only if toggle is enabled
+                        if viewModel.saveLoginToKeychain {
+                            Keychain.shared.appleIDEmailAddress = appleID
+                            Keychain.shared.appleIDPassword = password
+                        }
                         viewModel.nextStep()
                     }
                 }

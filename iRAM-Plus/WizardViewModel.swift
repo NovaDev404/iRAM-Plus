@@ -26,6 +26,11 @@ class WizardViewModel: ObservableObject {
     @Published var serverResponse: String = ""
     @Published var errorMessage: String = ""
     @Published var showError: Bool = false
+    @Published var saveLoginToKeychain = UserDefaults.standard.bool(forKey: "saveLoginToKeychain") {
+        didSet {
+            UserDefaults.standard.set(saveLoginToKeychain, forKey: "saveLoginToKeychain")
+        }
+    }
     
     let loginViewModel = LoginViewModel()
     
