@@ -383,8 +383,12 @@ struct LoginSlide: View {
             if newStep == .login && previousStep != .login {
                 if viewModel.saveLoginToKeychain {
                     // Auto-fill from keychain if enabled
-                    appleID = Keychain.shared.appleIDEmailAddress ?? ""
-                    password = Keychain.shared.appleIDPassword ?? ""
+                    if let savedEmail = Keychain.shared.appleIDEmailAddress {
+                        appleID = savedEmail
+                    }
+                    if let savedPassword = Keychain.shared.appleIDPassword {
+                        password = savedPassword
+                    }
                 } else {
                     appleID = ""
                     password = ""
@@ -394,6 +398,17 @@ struct LoginSlide: View {
                 verificationCodeFocused = false
             }
             previousStep = newStep
+        }
+        .onAppear {
+            // Also try to auto-fill on initial appearance
+            if viewModel.currentStep == .login && viewModel.saveLoginToKeychain {
+                if let savedEmail = Keychain.shared.appleIDEmailAddress, appleID.isEmpty {
+                    appleID = savedEmail
+                }
+                if let savedPassword = Keychain.shared.appleIDPassword, password.isEmpty {
+                    password = savedPassword
+                }
+            }
         }
     }
     
