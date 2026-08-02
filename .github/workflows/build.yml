@@ -29,11 +29,13 @@ jobs:
           submodules: recursive
       - name: Update App Version
         run: |
-          /usr/libexec/PlistBuddy -c "Set :MARKETING_VERSION ${{ inputs.version }}" iRAM-Plus.xcodeproj/project.pbxproj
+          # Update MARKETING_VERSION using sed
+          sed -i '' "s/MARKETING_VERSION = .*/MARKETING_VERSION = ${{ inputs.version }};/g" iRAM-Plus.xcodeproj/project.pbxproj
           # Count non-alpha releases and increment
           release_count=$(gh release list --exclude-pre-releases --limit 100 | wc -l)
           build_number=$((release_count + 1))
-          /usr/libexec/PlistBuddy -c "Set :CURRENT_PROJECT_VERSION $build_number" iRAM-Plus.xcodeproj/project.pbxproj
+          # Update CURRENT_PROJECT_VERSION using sed
+          sed -i '' "s/CURRENT_PROJECT_VERSION = .*/CURRENT_PROJECT_VERSION = $build_number;/g" iRAM-Plus.xcodeproj/project.pbxproj
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set Scheme
