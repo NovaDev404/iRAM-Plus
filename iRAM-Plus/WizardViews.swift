@@ -20,7 +20,7 @@ struct KeyboardAdaptive: ViewModifier {
                 withAnimation {
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         // Use a smaller portion of keyboard height to avoid excessive movement
-                        keyboardHeight = keyboardFrame.height * 0.3
+                        keyboardHeight = keyboardFrame.height * 0.2
                     }
                 }
             }
