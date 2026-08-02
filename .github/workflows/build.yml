@@ -3,15 +3,11 @@ name: Xcode - Build
 on: 
   workflow_dispatch:
     inputs:
-      release:
-        description: Create a release
-        type: boolean
-        required: false
-      tag_name:
-        description: Release tag name (e.g. v1.0.0)
+      version:
+        description: Release version (e.g. 1.0.0)
         type: string
-        required: false
-        
+        required: true
+       
 jobs:
   build:
     name: Build using xcodebuild command
@@ -31,6 +27,15 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+      - name: Update App Version
+        run: |
+          /usr/libexec/PlistBuddy -c "Set :MARKETING_VERSION ${{ inputs.version }}" iRAM-Plus.xcodeproj/project.pbxproj
+          # Count non-alpha releases and increment
+          release_count=$(gh release list --exclude-pre-releases --limit 100 | wc -l)
+          build_number=$((release_count + 1))
+          /usr/libexec/PlistBuddy -c "Set :CURRENT_PROJECT_VERSION $build_number" iRAM-Plus.xcodeproj/project.pbxproj
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set Scheme
         id: scheme
         run: |
@@ -125,7 +130,6 @@ jobs:
     name: Release
     permissions:
       contents: write
-    if: inputs.release || github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
     needs: [package]
     concurrency:
@@ -142,8 +146,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ inputs.tag_name }}
-          name: Alpha ${{ inputs.tag_name }}
+          tag_name: v${{ inputs.version }}
+          name: Alpha v${{ inputs.version }}
           prerelease: true
           update_existing: true
           body: |

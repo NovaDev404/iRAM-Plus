@@ -164,7 +164,7 @@ struct SettingsSlide: View {
                         EmptyView()
                     }
                     .pickerStyle(.menu)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
                 if viewModel.selectedAnisetteServer == AnisetteServer.custom {
