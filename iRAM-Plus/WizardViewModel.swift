@@ -84,6 +84,7 @@ class WizardViewModel: ObservableObject {
                 anisetteServerURL = selectedAnisetteServer.address
                 UserDefaults.standard.set(selectedAnisetteServer.name, forKey: "selectedAnisetteServerName")
                 UserDefaults.standard.set(selectedAnisetteServer.address, forKey: "selectedAnisetteServerAddress")
+                AnisetteDataHelper.shared.url = URL(string: selectedAnisetteServer.address)
             }
         }
     }
@@ -92,6 +93,7 @@ class WizardViewModel: ObservableObject {
             if selectedAnisetteServer == AnisetteServer.custom {
                 anisetteServerURL = customAnisetteURL
                 UserDefaults.standard.set(customAnisetteURL, forKey: "customAnisetteURL")
+                AnisetteDataHelper.shared.url = URL(string: customAnisetteURL)
             }
         }
     }

@@ -83,6 +83,7 @@ struct WelcomeSlide: View {
             
             Button(action: {
                 DataManager.shared.model.anisetteServerURL = viewModel.anisetteServerURL
+                AnisetteDataHelper.shared.url = URL(string: viewModel.anisetteServerURL)
                 viewModel.resetLoginState()
                 viewModel.nextStep()
             }) {
@@ -219,6 +220,7 @@ struct SettingsSlide: View {
             
             Button(action: {
                 DataManager.shared.model.anisetteServerURL = viewModel.anisetteServerURL
+                AnisetteDataHelper.shared.url = URL(string: viewModel.anisetteServerURL)
                 viewModel.goToStep(.welcome)
             }) {
                 Text("Done")
