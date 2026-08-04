@@ -102,11 +102,11 @@ class LoginViewModel: ObservableObject {
 
         do {
             await MainActor.run {
-                progressCallback?(0.1, "Trying to get client info")
+                progressCallback?(0.1, "Trying to get anisette data")
             }
             let anisetteData = try await AnisetteDataHelper.shared.getAnisetteData()
             await MainActor.run {
-                progressCallback?(0.3, "Client info received")
+                progressCallback?(0.3, "Anisette data received")
             }
 
             await MainActor.run {
