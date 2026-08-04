@@ -21,7 +21,7 @@
 <p align="center">
   <img src="screenshots/IMG_0798.png" width="180" alt="Screenshot 1">
   <img src="screenshots/IMG_0799.png" width="180" alt="Screenshot 2">
-  <img src="screenshots/IMG_0800.png" width="180" alt="Screenshot 3">
+  <img src="screenshots/IMG_0800.jpeg" width="180" alt="Screenshot 3">
 </p>
 <p align="center">
   <img src="screenshots/IMG_0801.png" width="180" alt="Screenshot 4">
