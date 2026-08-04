@@ -17,6 +17,18 @@
 6. Reinstall the app from SideStore/AltStore
 7. Check if you have "Increased Memory Limit"
 
+<h2>Screenshots</h2>
+<p align="center">
+  <img src="screenshots/IMG_0798.png" width="180" alt="Screenshot 1">
+  <img src="screenshots/IMG_0799.png" width="180" alt="Screenshot 2">
+  <img src="screenshots/IMG_0800.png" width="180" alt="Screenshot 3">
+</p>
+<p align="center">
+  <img src="screenshots/IMG_0801.png" width="180" alt="Screenshot 4">
+  <img src="screenshots/IMG_0802.png" width="180" alt="Screenshot 5">
+  <img src="screenshots/IMG_0803.png" width="180" alt="Screenshot 6">
+</p>
+
 ## Credits
 - *NovaDev404* - iRAM+ creator
 - *Huge_Black* - Creator of GetMoreRam
