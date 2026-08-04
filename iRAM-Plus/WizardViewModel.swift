@@ -85,6 +85,12 @@ class WizardViewModel: ObservableObject {
                 UserDefaults.standard.set(selectedAnisetteServer.name, forKey: "selectedAnisetteServerName")
                 UserDefaults.standard.set(selectedAnisetteServer.address, forKey: "selectedAnisetteServerAddress")
                 AnisetteDataHelper.shared.url = URL(string: selectedAnisetteServer.address)
+            } else {
+                // When switching to Custom, save it as Custom with the current custom URL
+                UserDefaults.standard.set("Custom", forKey: "selectedAnisetteServerName")
+                UserDefaults.standard.set(customAnisetteURL, forKey: "selectedAnisetteServerAddress")
+                anisetteServerURL = customAnisetteURL
+                AnisetteDataHelper.shared.url = URL(string: customAnisetteURL)
             }
         }
     }
@@ -93,6 +99,8 @@ class WizardViewModel: ObservableObject {
             if selectedAnisetteServer == AnisetteServer.custom {
                 anisetteServerURL = customAnisetteURL
                 UserDefaults.standard.set(customAnisetteURL, forKey: "customAnisetteURL")
+                UserDefaults.standard.set("Custom", forKey: "selectedAnisetteServerName")
+                UserDefaults.standard.set(customAnisetteURL, forKey: "selectedAnisetteServerAddress")
                 AnisetteDataHelper.shared.url = URL(string: customAnisetteURL)
             }
         }
@@ -169,7 +177,12 @@ class WizardViewModel: ObservableObject {
                 // Restore saved selection or default to first server
                 if let savedName = UserDefaults.standard.string(forKey: "selectedAnisetteServerName"),
                    let savedAddress = UserDefaults.standard.string(forKey: "selectedAnisetteServerAddress") {
-                    if let savedServer = anisetteServers.first(where: { $0.name == savedName && $0.address == savedAddress }) {
+                    // Check if saved selection was Custom
+                    if savedName == "Custom" {
+                        selectedAnisetteServer = AnisetteServer.custom
+                        customAnisetteURL = savedAddress
+                        anisetteServerURL = savedAddress
+                    } else if let savedServer = anisetteServers.first(where: { $0.name == savedName && $0.address == savedAddress }) {
                         selectedAnisetteServer = savedServer
                         anisetteServerURL = savedAddress
                     } else if let firstServer = anisetteServers.first {
@@ -189,6 +202,16 @@ class WizardViewModel: ObservableObject {
     init() {
         // Load custom URL if saved
         customAnisetteURL = UserDefaults.standard.string(forKey: "customAnisetteURL") ?? ""
+        
+        // Check if saved selection was Custom and restore it
+        if let savedName = UserDefaults.standard.string(forKey: "selectedAnisetteServerName"),
+           savedName == "Custom" {
+            selectedAnisetteServer = AnisetteServer.custom
+            if let savedAddress = UserDefaults.standard.string(forKey: "selectedAnisetteServerAddress") {
+                customAnisetteURL = savedAddress
+                anisetteServerURL = savedAddress
+            }
+        }
         
         loginViewModel.objectWillChange.sink { [weak self] _ in
             self?.objectWillChange.send()
