@@ -1,7 +1,11 @@
-# iRAM+
-<img height="128" width="128" src="https://raw.githubusercontent.com/NovaDev404/iRAM-Plus/refs/heads/main/iRAM-Plus/Assets.xcassets/AppIcon.appiconset/icon.png">
+<div align="center">
+  <img height="128" width="128" src="https://raw.githubusercontent.com/NovaDev404/iRAM-Plus/refs/heads/main/iRAM-Plus/Assets.xcassets/AppIcon.appiconset/icon.png">
+  <h1>iRAM+</h1>
+  <p><strong>An app that allows you to enable <code>Increased Memory Limit</code>to your sideloaded apps directly on device.</strong></p>
+</div>
 
-A fork of GetMoreRam that allows you to enable `Increased Memory Limit` to your sideloaded apps directly on device.  
+---
+
 > ⚠️ This can only enable increased memory for apps installed with apple developer accounts and not with public enterprise certifiates.
 
 ## How to use
